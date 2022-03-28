@@ -69,6 +69,5 @@ for (i=0;i<n;i++) {
 		};
 }
 
-makeRectangle(n/2, n/2, 10, 10)
 
 Datos_de_la_Imag(Acelerador,fecha,RTImageLabel);
