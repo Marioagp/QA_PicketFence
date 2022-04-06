@@ -28,11 +28,18 @@
     Overlay.drawEllipse(x, y, 20, 20);
     }
     
-    function Dibuja_Punto(color, lineWidth, x, y) {
+    function Dibuja_Circulo(color, lineWidth, x, y) {
     setColor(color);
     setLineWidth(lineWidth);
     Overlay.drawEllipse(x-1, y-1, 2, 2);
     }
+    
+    function Dibuja_Punto(color, lineWidth, x0, y0, x1, y1) {
+    setColor(color);
+    setLineWidth(lineWidth);
+    Overlay.drawLine(x0, y0, x1, y1);
+    }
+
 
 
 
@@ -69,6 +76,7 @@
 	//RECORTANDO LA IMAGEN SE USA LA UN CUADRADO DE MITAD DE AREA
 	run("Specify...", "width="+tamanodelaImag/2+" height="+tamanodelaImag/2+" x="+tamanodelaImag/2+" y="+tamanodelaImag/2+" constrain centered");
 	run("Crop");
+	run("Median...", "radius=2");
 	saveAs("Tiff", getDirectory("temp")+"tmp_cropped.tif");	// saves image to revert to later
     run("Enhance Contrast...", "saturated=0.5");// equalize");
     //run("Find Edges");
@@ -96,7 +104,7 @@
 			//if (i==150) {
 				//Array.show(maxLocs_Filas);
 				//Plot.create("Title", "X-axis Label", "Y-axis Label", ValoresImg_Filas) 
-				Dibuja_Punto("red",1,maxLocs_Filas[0],i);//ValoresImg_Filas[maxLocs_Filas[0]]
+				Dibuja_Punto("red",1,maxLocs_Filas[0],i,maxLocs_Filas[0],i);//ValoresImg_Filas[maxLocs_Filas[0]]
 	            //Dibuja_Punto("red",1,maxLocs_Filas[1],i);
 	            //Dibuja_Punto("red",1,maxLocs_Filas[2],i);
 	            //Dibuja_Punto("red",1,maxLocs_Filas[3],i);
