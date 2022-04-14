@@ -63,6 +63,26 @@
     return gauss_valores;
     
     };
+    
+    function skewness(mean,mediana,StDv) { 
+    //  Skew = 3 * (Mean – Median) / Standard Deviation    
+     return 3*(mean-mediana)/StDv  //************me dio error y no se pq**********
+
+    };
+    
+    function mediana(array_vec) {
+    // mediana de un arreglo	
+      array_vec= Array.sort(array_vec);
+      n = lengthOf(array_vec);
+      if(n%2 == 0)
+      {
+      	return (array_vec[(n/2)-1]+array_vec[(n/2)])/2
+      	};
+      else {
+      	return array_vec[(n/2)]
+      };
+    };
+
 
    //******************************************************************************************************
 
@@ -114,12 +134,13 @@
 	est_3_1 = newArray(n);
 	est_4_1 = newArray(n);
 	prod = newArray(n);
+	skewness_valo_1 = newArray (n)
 
 
 	for (i=0;i<n;i++) {
 		for (j=0;j<n;j++){
-			ValoresImg[(n*i)+j]= getPixel(j,i);		
-			ValoresImg_Filas[j]= getPixel(j,i);	
+			ValoresImg[(n*i)+j]= getPixel(j,i);	// se almacena todos los valores de imagem n*n	
+			ValoresImg_Filas[j]= getPixel(j,i);	// se almacenan los valores de la fila en curso (numero de fila i)
 			};
 			
 			maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuantra los valores maximos de la fila i
@@ -133,25 +154,32 @@
 				                                     //tengo que crear	
 		     };
 		     
-			prod[i] = 1; // inicializacion en uo para la opracion depues 
+			prod[i] = 1; // inicializacion en uno para la opracion despues 
 		
 			
-		     //Gaficar los maximos encontrados para cada franja
+		     //Trabajado para una fila
+		     //graficar loa max
+		     //encontar la vecindad y los valores HOS
+		     
+		     
 		for (t = 0; t < Nume_Lineas_H; t++) {
 		     Dibuja_Punto("red",1,maxLocs_Filas[t],i,maxLocs_Filas[t],i); //ValoresImg_Filas[maxLocs_Filas[0]]
 		     
 		     // probando multiplicar cada maximo en cada fila para graficar depues y ver si da buenos resultados
-		     prod[i] *= maxLocs_Filas[t] ;//mover esto al siguiente for, ahorro de memoria
+		     prod[i] *= maxLocs_Filas[t] ;
 		     
 		     // vecindad
 		     vencindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);
 		     Array.getStatistics(vencindad, min, max, mean, stdDev);
-		     Overlay.show;
-		     
+		     m = mediana(vencindad);
+		     //para solo obtener loa valores de la primera franja
+		     if (t == 0) {		     
+		     skewness_valo_1 [i]  = 3*(mean-m)/stdDev ;
+		     };
 		     		
 	         };
 			
-			
+			Overlay.show;
 	};
 	
 	
@@ -161,6 +189,9 @@
 	// Graficar el producto
 	Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
 	Array.show(prod);
+	// Graficar el skewness
+	//Array.show(skewness_valo_1);
+	//Plot.create("Producto", "X-axis Label", "Y-axis Label", skewness_valo_1)
 	
 	a = newArray(30);
 	w= -15;
