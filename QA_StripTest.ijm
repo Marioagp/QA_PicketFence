@@ -39,9 +39,32 @@
     setLineWidth(lineWidth);
     Overlay.drawLine(x0, y0, x1, y1);
     }
+    
+    function encuntra_vecindad(valor_central, Arreglo) { 
+    // function description
+    valores_vecinos = newArray(30);// se toman solo 30 valores pq da el ancho perfecto
+    // se obtienen los 30 valores con centro en valor_central
+    for (i = 0; i < 30; i++) {
+         valores_vecinos[i] = Arreglo [valor_central-15+i];    
+    };
+    return valores_vecinos;
+    };
+    
+    function Gauss(desviacion_STD, media, x_valores) { 
+    // Crea una campana de Gauss con una "media" y una "desviacion_STD"
+    a = 1/(desviacion_STD*Math.sqrt(2*PI)); 
+    Nume = lengthOf(x_valores) ; 
+    gauss_valores = newArray(Nume);    
+    for (i = 0; i < Nume; i++) {
+    	gauss_valores[i] = a*exp(-(Math.pow(x_valores[i]-media,2))/(2*Math.pow(desviacion_STD,2)));    	
+    };
 
+    
+    return gauss_valores;
+    
+    };
 
-
+   //******************************************************************************************************
 
 	//main()
 	print("\\Clear");
@@ -86,38 +109,67 @@
 	ValoresImg = newArray(n*n);
 	ValoresImg_Filas = newArray(n);
 	max_1 = newArray(n);
-	max_2 = newArray(n);
-	max_3 = newArray(n);
-	max_4 = newArray(n);
-	max_5 = newArray(n);
-	max_6 = newArray(n);
+	est_1_1 = newArray(n);
+	est_2_1 = newArray(n);
+	est_3_1 = newArray(n);
+	est_4_1 = newArray(n);
+	prod = newArray(n);
+
 
 	for (i=0;i<n;i++) {
 		for (j=0;j<n;j++){
 			ValoresImg[(n*i)+j]= getPixel(j,i);		
 			ValoresImg_Filas[j]= getPixel(j,i);	
 			};
-			maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);
-			maxLocs_Filas=Array.sort(maxLocs_Filas);
-			max_1[i]= maxLocs_Filas[0];
 			
-			//if (i==150) {
-				//Array.show(maxLocs_Filas);
-				//Plot.create("Title", "X-axis Label", "Y-axis Label", ValoresImg_Filas) 
-				Dibuja_Punto("red",1,maxLocs_Filas[0],i,maxLocs_Filas[0],i);//ValoresImg_Filas[maxLocs_Filas[0]]
-	            //Dibuja_Punto("red",1,maxLocs_Filas[1],i);
-	            //Dibuja_Punto("red",1,maxLocs_Filas[2],i);
-	            //Dibuja_Punto("red",1,maxLocs_Filas[3],i);
-	            //Dibuja_Punto("red",1,maxLocs_Filas[4],i);
-	            //Dibuja_Punto("red",1,maxLocs_Filas[5],i);
-	            Overlay.show;
-			//};
-
+			maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuantra los valores maximos de la fila i
+			maxLocs_Filas=Array.sort(maxLocs_Filas);//los ordeno de menor a mayor o izq a derech
+			max_1[i]= maxLocs_Filas[0]; //para plotear despues y comprobar
+			
+			
+			
+		if (i==0) {
+			Nume_Lineas_H = lengthOf(maxLocs_Filas); //Numero de maximos en la primera fila, para determiar cuatos arreglos de maxi 
+				                                     //tengo que crear	
+		     };
+		     
+			prod[i] = 1; // inicializacion en uo para la opracion depues 
+		
+			
+		     //Gaficar los maximos encontrados para cada franja
+		for (t = 0; t < Nume_Lineas_H; t++) {
+		     Dibuja_Punto("red",1,maxLocs_Filas[t],i,maxLocs_Filas[t],i); //ValoresImg_Filas[maxLocs_Filas[0]]
+		     
+		     // probando multiplicar cada maximo en cada fila para graficar depues y ver si da buenos resultados
+		     prod[i] *= maxLocs_Filas[t] ;//mover esto al siguiente for, ahorro de memoria
+		     
+		     // vecindad
+		     vencindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);
+		     Array.getStatistics(vencindad, min, max, mean, stdDev);
+		     Overlay.show;
+		     
+		     		
+	         };
+			
+			
 	};
-	Plot.create("Title", "X-axis Label", "Y-axis Label", max_1)
-	Array.show(max_1);
-
-	//Array.show(ValoresImg)
+	
+	
+	
+	
+	
+	// Graficar el producto
+	Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
+	Array.show(prod);
+	
+	a = newArray(30);
+	w= -15;
+	for (i = 0; i < 30; i++) {
+		a [i] = w;
+		w++;
+	}
+	
+	
 
 	//Dibujar las areas determinadas como errores
 	x0=100;
