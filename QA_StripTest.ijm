@@ -45,10 +45,15 @@
     valores_vecinos = newArray(30);// se toman solo 30 valores pq da el ancho perfecto
     // se obtienen los 30 valores con centro en valor_central
     for (i = 0; i < 30; i++) {
-         valores_vecinos[i] = Arreglo [valor_central-15+i];    
-    };
+         valores_vecinos[i] = Arreglo [valor_central-15+i];         
+    };   
+    //Plot.create("Producto", "X-axis Label", "Y-axis Label", valores_vecinos);
+    //Plot.show();
     return valores_vecinos;
     };
+    
+    
+    
     
     function Gauss(desviacion_STD, media, x_valores) { 
     // Crea una campana de Gauss con una "media" y una "desviacion_STD"
@@ -57,22 +62,41 @@
     gauss_valores = newArray(Nume);    
     for (i = 0; i < Nume; i++) {
     	gauss_valores[i] = a*exp(-(Math.pow(x_valores[i]-media,2))/(2*Math.pow(desviacion_STD,2)));    	
+    };    
+    return gauss_valores;    
     };
+    
+    
+    
+    
+    function skewness(datos,mean,StDv) { 
+    n = lengthOf(datos);
+    //skewnees_v=-1;
+    for (i = 0; i < n; i++) {
+    	skewnees_v+=Math.pow((datos[i]-mean), 3);
+    }    
+     //return skewnees_v=(skewnees_v*n)/((n-1)*(n-2)*(Math.pow(StDv,3))); //con ajuste 
+     return skewnees_v=skewnees_v/(n*(Math.pow(StDv,3))); // sin ajuste
+    };
+    
+  
+    
+    
+    function kurtosis(datos,mean,StDv) { 
+    n = lengthOf(datos);
+    //kurtosis_v=-1;
+    for (i = 0; i < n; i++) {
+    	kurtosis_v+=Math.pow((datos[i]-mean), 4);
+    };    
+     //return kurtosis_v=(kurtosis_v*n*(n+1))/((n-1)*(n-2)*(n-3)*(Math.pow(StDv,4)))-3*(Math.pow((n-1),2))/((n-3)*(n-2));//con ajuste
+     return kurtosis_v=(kurtosis_v/(n*(Math.pow(StDv,4)));  
+    };
+    
 
-    
-    return gauss_valores;
-    
-    };
-    
-    function skewness(mean,mediana,StDv) { 
-    //  Skew = 3 * (Mean – Median) / Standard Deviation    
-     return 3*(mean-mediana)/StDv  //************me dio error y no se pq**********
-
-    };
     
     function mediana(array_vec) {
     // mediana de un arreglo	
-      array_vec= Array.sort(array_vec);
+      array_vec=Array.sort(array_vec);
       n = lengthOf(array_vec);
       if(n%2 == 0)
       {
@@ -134,7 +158,8 @@
 	est_3_1 = newArray(n);
 	est_4_1 = newArray(n);
 	prod = newArray(n);
-	skewness_valo_1 = newArray (n)
+	skewness_valo_1 = newArray (n);
+	kurtosis_valo_1 = newArray (n);
 
 
 	for (i=0;i<n;i++) {
@@ -169,15 +194,19 @@
 		     prod[i] *= maxLocs_Filas[t] ;
 		     
 		     // vecindad
-		     vencindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);
-		     Array.getStatistics(vencindad, min, max, mean, stdDev);
-		     m = mediana(vencindad);
-		     //para solo obtener loa valores de la primera franja
-		     if (t == 0) {		     
-		     skewness_valo_1 [i]  = 3*(mean-m)/stdDev ;
+		     vecindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);		     
+		     Array.getStatistics(vecindad, min, max, mean, stdDev);
+		     m = mediana(vecindad);
+		     
+		     if (t == 2) {		     
+		     skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
+		     kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);
+		     
+		     
 		     };
 		     		
 	         };
+	         
 			
 			Overlay.show;
 	};
@@ -187,11 +216,19 @@
 	
 	
 	// Graficar el producto
-	Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
+	//Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
 	Array.show(prod);
-	// Graficar el skewness
-	//Array.show(skewness_valo_1);
-	//Plot.create("Producto", "X-axis Label", "Y-axis Label", skewness_valo_1)
+	//Graficar el skewness
+	Array.show(skewness_valo_1);
+	Plot.create("Skewness", "X-axis Label", "Y-axis Label");
+	Plot.add("line", skewness_valo_1);
+	Array.show(kurtosis_valo_1);
+	Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
+	Plot.add("line", kurtosis_valo_1);
+	//Plot.create("Kurtosis", "X-axis Label", "Y-axis Label", kurtosis_valo_1);
+	//Plot.add("line", kurtosis_valo_1);
+	
+	
 	
 	a = newArray(30);
 	w= -15;
