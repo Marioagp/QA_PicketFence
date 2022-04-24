@@ -70,9 +70,8 @@
         Fit.doFit("Gaussian", X, vecindad);  //ajuste gaussiano      
         // para ver los resultados
         x_centro = Fit.p(2); //obtine el centro de la curva gaussiana
-        x_centro= Math.round(x_centro);
-        return x_centro_real - 16 + x_centro
-        
+        //x_centro= Math.round(x_centro);
+        return x_centro_real - 16 + x_centro        
         };
     
     
@@ -157,6 +156,7 @@
 		     };
 		     
 			prod[i] = 1; // inicializacion en uo para la operacion despues 
+			dif[i] = 1;
 		
 			
 		     //Gaficar los maximos encontrados para cada franja
@@ -165,16 +165,18 @@
 		     
 		     // probando multiplicar cada maximo en cada fila para graficar depues y ver si da buenos resultados
 		     prod[i] *= maxLocs_Filas[t] ;//mover esto al siguiente for, ahorro de memoria
-		     
+		     		     
 		     // vecindad
 		     vecindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);
 		     Array.getStatistics(vecindad, min, max, mean, stdDev);
 		     c = cento_del_GaussianAdjust(vecindad,maxLocs_Filas[t]);
-		     print("centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c);
-		     if (t==0) {
-		     	
-		     	dif[i]=maxLocs_Filas[t]-c;
-		     }
+		     print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
+		     //dif[i] = maxLocs_Filas[t]-c ;
+		     if (t==4) {		     	
+		    	dif[i]=Math.abs(maxLocs_Filas[t]-c);
+		    	
+
+		    }
 
 		     Overlay.show;		     		
 	         };		
@@ -183,10 +185,11 @@
 	
 	//grafica diferencia para linea igual a t
 	
-	Plot.create("Title", "X-axis Label", "Y-axis Label", xValues, yValues);
+	Plot.create("Diferencia", "X-axis Label", "Y-axis Label",dif);
+	//Plot.add("error bars",dif);
 	//Graficar el producto
-	Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
-	Array.show(prod);
+	//Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
+	//Array.show(prod);
 	
 	//Dibujar las areas determinadas como errores
 	x0=100;
