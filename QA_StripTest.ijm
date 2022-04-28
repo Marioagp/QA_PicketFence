@@ -48,27 +48,12 @@
     // function description
     valores_vecinos = newArray(31);// se toman solo 31 valores pq da el ancho perfecto y para q el cntro sea el max
     // se obtienen los 30 valores con centro en valor_central
-<<<<<<< HEAD
-    for (i = 0; i < 30; i++) {
-         valores_vecinos[i] = Arreglo [valor_central-15+i];         
-    };   
-    //Plot.create("Producto", "X-axis Label", "Y-axis Label", valores_vecinos);
-    //Plot.show();
-=======
     for (i = 0; i < 31; i++) {
          valores_vecinos[i] = Arreglo [valor_central-15+i];    
     };
->>>>>>> FWHM
     return valores_vecinos;
     };
-    
-    
-<<<<<<< HEAD
-=======
-    function cento_del_FWHM(vecindad) { 
-    // function description
-        
-    };
+
 
 
     function cento_del_GaussianAdjust(vecindad,x_centro_real) { 
@@ -83,22 +68,7 @@
         //x_centro= Math.round(x_centro);
         return x_centro_real - 16 + x_centro        
         };
-    
->>>>>>> FWHM
-    
-    
-    function Gauss(desviacion_STD, media, x_valores) { 
-    // Crea una campana de Gauss con una "media" y una "desviacion_STD"
-    a = 1/(desviacion_STD*Math.sqrt(2*PI)); 
-    Nume = lengthOf(x_valores) ; 
-    gauss_valores = newArray(Nume);    
-    for (i = 0; i < Nume; i++) {
-    	gauss_valores[i] = a*exp(-(Math.pow(x_valores[i]-media,2))/(2*Math.pow(desviacion_STD,2)));    	
-    };    
-    return gauss_valores;    
-<<<<<<< HEAD
-    };
-    
+ 
     
     
     
@@ -108,9 +78,8 @@
     for (i = 0; i < n; i++) {
     	skewnees_v+=Math.pow((datos[i]-mean), 3);
     }    
-     return (skewnees_v*n)/((n-1)*(n-2)*(Math.pow(StDv,3))); //con ajuste 
-     //return skewnees_v/(n*(Math.pow(StDv,3))); // sin ajuste
-    
+     //return (skewnees_v*n)/((n-1)*(n-2)*(Math.pow(StDv,3))); //con ajuste 
+     return skewnees_v/(n*(Math.pow(StDv,3))); // sin ajuste    
      
     };
     
@@ -119,12 +88,11 @@
     
     function kurtosis(datos,mean,StDv) { 
     n = lengthOf(datos);
-    //kurtosis_v=-1;
     for (i = 0; i < n; i++) {
     	kurtosis_v+=Math.pow((datos[i]-mean), 4);
     };    
-     return (kurtosis_v*n*(n+1))/((n-1)*(n-2)*(n-3)*(Math.pow(StDv,4)))-3*(Math.pow((n-1),2))/((n-3)*(n-2));//con ajuste
-     //return kurtosis_v/(n*(Math.pow(StDv,4)));  
+     //return (kurtosis_v*n*(n+1))/((n-1)*(n-2)*(n-3)*(Math.pow(StDv,4)))-3*(Math.pow((n-1),2))/((n-3)*(n-2));//con ajuste
+     return kurtosis_v/(n*(Math.pow(StDv,4)));  
     };
     
 
@@ -140,8 +108,6 @@
       else {
       	return array_vec[(n/2)]
       };
-=======
->>>>>>> FWHM
     };
 
 
@@ -214,86 +180,69 @@
 		if (i==0) {
 			Nume_Lineas_H = lengthOf(maxLocs_Filas); //Numero de maximos en la primera fila, para determiar cuatos arreglos de maxi 
 				                                     //tengo que crear	
-<<<<<<< HEAD
-		     };		     
-			prod[i] = 1; // inicializacion en uno para la opracion despues 		
-=======
 		     };
 		     
 			prod[i] = 1; // inicializacion en uo para la operacion despues 
 			dif[i] = 1;
-		
->>>>>>> FWHM
+
 			
 		     //Trabajado para una fila
 		     //graficar loa max
 		     //encontar la vecindad y los valores HOS     
 		     
 		for (t = 0; t < Nume_Lineas_H; t++) {
-		     Dibuja_Punto("red",1,maxLocs_Filas[t],i,maxLocs_Filas[t],i); //ValoresImg_Filas[maxLocs_Filas[0]]		     
+		     Dibuja_Punto("red",1,maxLocs_Filas[t],i,maxLocs_Filas[t],i); //ValoresImg_Filas[maxLocs_Filas[0]]	
+		     	     
 		     // probando multiplicar cada maximo en cada fila para graficar depues y ver si da buenos resultados
-<<<<<<< HEAD
-		     prod[i] *= maxLocs_Filas[t] ;		     
+		     prod[i] *= maxLocs_Filas[t] ;	
+		     	     
 		     // vecindad
 		     vecindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);		     
 		     Array.getStatistics(vecindad, min, max, mean, stdDev);
 		     m = mediana(vecindad);
-		     //calculando kurtosis y skewness para la franja t
+		     
+		     // Direfencia entre el centro de la Gaussiana y el centro de intensidad
+		     c = cento_del_GaussianAdjust(vecindad,maxLocs_Filas[t]);
+		     print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
+		     
+		     //calculando kurtosis y skewness para la franja t		     
 		     if (t == 2) {		     
 		     skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
-		     kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);		     
+		     kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
+		     		     	     
+		     // almacendo la dif para una franja t
+		     dif[i]=Math.abs(maxLocs_Filas[t]-c);		     
 		     };
 		     		
-	         };
-	         
-			
+	         };		
 			Overlay.show;
 	};	
 	
-	// Graficar el producto
+	//Graficar el producto
 	//Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
-	Array.show(prod);
+	//Array.show(prod);
+	
 	//Graficar el skewness
-	Array.show(skewness_valo_1);
-	Plot.create("Skewness", "X-axis Label", "Y-axis Label");
-	Plot.add("line", skewness_valo_1);
-	Array.show(kurtosis_valo_1);
+	//Array.show(skewness_valo_1);
+	//Plot.create("Skewness", "X-axis Label", "Y-axis Label");
+	//Plot.add("line", skewness_valo_1);
+	//Array.show(kurtosis_valo_1);
+	
 	//Graficar el kurtosis
 	//Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
 	//Plot.add("line", kurtosis_valo_1);
 	
 	
-
-
-=======
-		     prod[i] *= maxLocs_Filas[t] ;//mover esto al siguiente for, ahorro de memoria
-		     		     
-		     // vecindad
-		     vecindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);
-		     Array.getStatistics(vecindad, min, max, mean, stdDev);
-		     c = cento_del_GaussianAdjust(vecindad,maxLocs_Filas[t]);
-		     print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
-		     //dif[i] = maxLocs_Filas[t]-c ;
-		     if (t==4) {		     	
-		    	dif[i]=Math.abs(maxLocs_Filas[t]-c);
-		    	
-
-		    }
-
-		     Overlay.show;		     		
-	         };		
-			
-	};	
 	
-	//grafica diferencia para linea igual a t
-	
-	Plot.create("Diferencia", "X-axis Label", "Y-axis Label",dif);
+	//grafica diferencia para linea igual a t	
+	//Plot.create("Diferencia", "X-axis Label", "Y-axis Label",dif);
+	//Plot.add("line",dif);
 	//Plot.add("error bars",dif);
 	//Graficar el producto
 	//Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
 	//Array.show(prod);
 	
->>>>>>> FWHM
+
 	//Dibujar las areas determinadas como errores
 	x0=100;
 	x1=200;
