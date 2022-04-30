@@ -66,9 +66,8 @@
         // para ver los resultados
         x_centro = Fit.p(2); //obtine el centro de la curva gaussiana
         //x_centro= Math.round(x_centro);
-        return x_centro_real - 16 + x_centro        
+       return x_centro_real - 16 + x_centro        
         };
- 
     
     
     
@@ -197,16 +196,17 @@
 		     prod[i] *= maxLocs_Filas[t] ;	
 		     	     
 		     // vecindad
-		     vecindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);		     
+		     vecindad = encuntra_vecindad(maxLocs_Filas[t],ValoresImg_Filas);		     		     
 		     Array.getStatistics(vecindad, min, max, mean, stdDev);
-		     m = mediana(vecindad);
+		     //vecindad_ordenada = vecindad;
+		     //m = mediana(vecindad_ordenada); //NO SE PQ ME ORDENA EL ARREGLE VECINDAD
 		     
-		     // Direfencia entre el centro de la Gaussiana y el centro de intensidad
+		     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
 		     c = cento_del_GaussianAdjust(vecindad,maxLocs_Filas[t]);
 		     print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
 		     
 		     //calculando kurtosis y skewness para la franja t		     
-		     if (t == 2) {		     
+		     if (t == 4) {		     
 		     skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
 		     kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
 		     		     	     
@@ -219,24 +219,29 @@
 	};	
 	
 	//Graficar el producto
-	//Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
+	Plot.create("Producto", "X-axis Label", "Y-axis Label")
+	Plot.add("line",prod);
+	Plot.show()
 	//Array.show(prod);
 	
 	//Graficar el skewness
 	//Array.show(skewness_valo_1);
-	//Plot.create("Skewness", "X-axis Label", "Y-axis Label");
-	//Plot.add("line", skewness_valo_1);
+	Plot.create("Skewness", "X-axis Label", "Y-axis Label");
+	Plot.add("line", skewness_valo_1);
+	Plot.show()
 	//Array.show(kurtosis_valo_1);
 	
 	//Graficar el kurtosis
-	//Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
-	//Plot.add("line", kurtosis_valo_1);
+	Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
+	Plot.add("line", kurtosis_valo_1);
+	Plot.show()
 	
 	
 	
 	//grafica diferencia para linea igual a t	
-	//Plot.create("Diferencia", "X-axis Label", "Y-axis Label",dif);
-	//Plot.add("line",dif);
+	Plot.create("Diferencia", "X-axis Label", "Y-axis Label",dif);
+	Plot.add("line",dif);
+	Plot.show()
 	//Plot.add("error bars",dif);
 	//Graficar el producto
 	//Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
@@ -260,3 +265,4 @@
 	//Plot.create("Title", "X-axis Label", "Y-axis Label",ValoresImg)
 
 	Datos_de_la_Imag(Acelerador,fecha,RTImageLabel);
+	print("return 0");
