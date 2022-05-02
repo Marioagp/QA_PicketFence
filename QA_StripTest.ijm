@@ -254,38 +254,31 @@ for (i=0;i<n;i++) {
 	prom_prod = newArray(60);
 	vecindad_laminaGra = newArray(14);
 	vecindad_laminaPeq = newArray(7);
+	ini = 4;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
-	for (lamina = 1; lamina < 61; lamina++) {
-		if (lamina < 13 ) {
-			ini = 14*(lamina-1);
-			fin = 14*(lamina);
-			vecindad_laminaGra = Array.slice(prod,ini,fin);
-			 //Array.print(vecindad_laminaGra);
-			print("\n");
+	for (lamina = 0; lamina < 60; lamina++) {
+		if (lamina < 12 ) {
+			vecindad_laminaGra = Array.slice(prod,ini,ini+14);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			prom_prod[lamina]=mean;
-			print(lamina);
-			print(mean);	
+			print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini += 14;							
 		};
 		
-		if (12 > lamina && lamina < 48){
-			ini = 7*(lamina-1);
-			fin = 7*(lamina);
-			vecindad_laminaPeq = Array.slice(prod,ini,fin);
+		if (11 < lamina && lamina < 48){
+			vecindad_laminaPeq = Array.slice(prod,ini,ini+7);
 			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
 			prom_prod[lamina]=mean;
-			print("mmmm\n");
-			print(mean);
+			print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini +=7; 
 			};
 			
-		if (lamina > 48) {
-			ini = fin;
-			fin = 14+ini;
-			vecindad_laminaGra = Array.slice(prod,ini,fin);
-			 //Array.print(vecindad_laminaGra);
-			print("\n");
+		if (lamina > 47) {
+			vecindad_laminaGra = Array.slice(prod,ini,ini+14);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			prom_prod[lamina]=mean;
+			print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini +=14; 
 		};
 
 	};
@@ -315,13 +308,19 @@ Plot.show()
 
 
 //grafica diferencia para linea igual a t	
-Plot.create("Diferencia", "X-axis Label", "Y-axis Label",dif);
+Plot.create("Diferencia", "X-axis Label", "Y-axis Label");
 Plot.add("line",dif);
 Plot.show()
 //Plot.add("error bars",dif);
 //Graficar el producto
 //Plot.create("Producto", "X-axis Label", "Y-axis Label", prod)
 //Array.show(prod);
+
+//grafica de los proemdios por cada lamina 60 valores
+Plot.create("Diferencia", "X-axis Label", "Y-axis Label");
+Plot.add("line",prom_prod);
+Plot.add("separated bar",prom_prod);
+Plot.show()
 
 
 //Dibujar las areas determinadas como errores
