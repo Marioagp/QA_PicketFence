@@ -29,17 +29,18 @@ Overlay.drawEllipse(x, y, 20, 20);
 
 
 function Dibuja_Circulo(color, lineWidth, x, y) {
-setColor(color);
-setLineWidth(lineWidth);
-Overlay.drawEllipse(x-1, y-1, 2, 2);
+		setColor(color);
+		setLineWidth(lineWidth);
+		Overlay.drawEllipse(x-1, y-1, 2, 2);
 }
 
 
 
 function Dibuja_Punto(color, lineWidth, x0, y0, x1, y1) {
-setColor(color);
-setLineWidth(lineWidth);
-Overlay.drawLine(x0, y0, x1, y1);
+		setColor(color);
+		setLineWidth(lineWidth);
+		Overlay.drawLine(x0, y0, x1, y1);
+		
 }
 
 
@@ -165,7 +166,7 @@ run("Rotate... ", "angle=-"+0.2+" grid=1 interpolation=Bilinear");
 
 run("Specify...", "width="+tamanodelaImag/2+" height="+tamanodelaImag/2+" x="+tamanodelaImag/2+" y="+tamanodelaImag/2+" constrain centered");
 run("Crop");
-run("Median...", "radius=2");
+run("Median...", "radius=2"); //elimnado ruido aleatorio
 saveAs("Tiff", getDirectory("temp")+"tmp_cropped.tif");	// saves image to revert to later
 run("Enhance Contrast...", "saturated=0.5");// equalize");
 //run("Find Edges");
@@ -236,7 +237,62 @@ for (i=0;i<n;i++) {
 	     		
          };		
 		Overlay.show;
+		
+		
+
+		 
 };	
+
+	//convirtiendo de pixeles a cm
+	//reduzco la matriz de 595 a 60 valores
+	//normalizar la matriz prod
+	Array.getStatistics(prod, min, max, mean, stdDev);
+	l = lengthOf(prod);
+	for (i = 0; i < l; i++) {
+		prod[i] = prod[i]/ max;
+	};
+	prom_prod = newArray(60);
+	vecindad_laminaGra = newArray(14);
+	vecindad_laminaPeq = newArray(7);
+	//laminas de 1 cm las 12 primeras y las 12 ultimas
+	for (lamina = 1; lamina < 61; lamina++) {
+		if (lamina < 13 ) {
+			ini = 14*(lamina-1);
+			fin = 14*(lamina);
+			vecindad_laminaGra = Array.slice(prod,ini,fin);
+			 //Array.print(vecindad_laminaGra);
+			print("\n");
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
+			prom_prod[lamina]=mean;
+			print(lamina);
+			print(mean);	
+		};
+		
+		if (12 > lamina && lamina < 48){
+			ini = 7*(lamina-1);
+			fin = 7*(lamina);
+			vecindad_laminaPeq = Array.slice(prod,ini,fin);
+			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
+			prom_prod[lamina]=mean;
+			print("mmmm\n");
+			print(mean);
+			};
+			
+		if (lamina > 48) {
+			ini = fin;
+			fin = 14+ini;
+			vecindad_laminaGra = Array.slice(prod,ini,fin);
+			 //Array.print(vecindad_laminaGra);
+			print("\n");
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
+			prom_prod[lamina]=mean;
+		};
+
+	};
+	Array.print(prom_prod);
+
+
+
 
 //Graficar el producto
 Plot.create("Producto", "X-axis Label", "Y-axis Label")
