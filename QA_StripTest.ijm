@@ -111,6 +111,43 @@ function mediana(array_vec) {
 };
 
 
+function cover595to56(valores595) { 
+// function description
+    valores56 = newArray(56);
+	vecindad_laminaGra = newArray(14);
+	vecindad_laminaPeq = newArray(7);
+	ini = 4;
+	//laminas de 1 cm las 12 primeras y las 12 ultimas
+	for (lamina = 0; lamina < 56; lamina++) {
+		if (lamina < 12 ) {
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
+			valores56[lamina]=mean;
+			//print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini += 14;							
+		};
+		
+		if (11 < lamina && lamina < 44){
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+7);
+			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
+			valores56[lamina]=mean;
+			//print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini +=7; 
+			};
+			
+		if (lamina > 43) {
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
+			valores56[lamina]=mean;
+			//print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini +=14; 
+		};
+
+	};
+	return valores56;
+};
+
+
    //******************************************************************************************************
 
 //main()
@@ -224,7 +261,7 @@ for (i=0;i<n;i++) {
 	     
 	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
 	     c = cento_del_GaussianAdjust(vecindad,maxLocs_Filas[t]);
-	     print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
+	     //print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
 	     
 	     //calculando kurtosis y skewness para la franja t		     
 	     if (t == 4) {		     
@@ -251,38 +288,8 @@ for (i=0;i<n;i++) {
 	for (i = 0; i < l; i++) {
 		prod[i] = prod[i]/ max;
 	};
-	prom_prod = newArray(60);
-	vecindad_laminaGra = newArray(14);
-	vecindad_laminaPeq = newArray(7);
-	ini = 4;
-	//laminas de 1 cm las 12 primeras y las 12 ultimas
-	for (lamina = 0; lamina < 60; lamina++) {
-		if (lamina < 12 ) {
-			vecindad_laminaGra = Array.slice(prod,ini,ini+14);
-			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
-			prom_prod[lamina]=mean;
-			print("ini: "+ini+"valor de mean " + mean + "\n");
-			ini += 14;							
-		};
-		
-		if (11 < lamina && lamina < 48){
-			vecindad_laminaPeq = Array.slice(prod,ini,ini+7);
-			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
-			prom_prod[lamina]=mean;
-			print("ini: "+ini+"valor de mean " + mean + "\n");
-			ini +=7; 
-			};
-			
-		if (lamina > 47) {
-			vecindad_laminaGra = Array.slice(prod,ini,ini+14);
-			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
-			prom_prod[lamina]=mean;
-			print("ini: "+ini+"valor de mean " + mean + "\n");
-			ini +=14; 
-		};
-
-	};
-	Array.print(prom_prod);
+	prom_prod=cover595to56(prod)
+	//Array.print(prom_prod);
 
 
 
