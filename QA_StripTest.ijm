@@ -114,8 +114,8 @@ function mediana(array_vec) {
 function cover595to56(valores595) { 
 // function description
     valores56 = newArray(56);
-	vecindad_laminaGra = newArray(14);
-	vecindad_laminaPeq = newArray(7);
+	//vecindad_laminaGra = newArray(14);
+	//vecindad_laminaPeq = newArray(7);
 	ini = 4;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
 	for (lamina = 0; lamina < 56; lamina++) {
@@ -145,6 +145,7 @@ function cover595to56(valores595) {
 
 	};
 	return valores56;
+	
 };
 
 
@@ -288,8 +289,9 @@ for (i=0;i<n;i++) {
 	for (i = 0; i < l; i++) {
 		prod[i] = prod[i]/ max;
 	};
-	prom_prod=cover595to56(prod)
-	//Array.print(prom_prod);
+	
+	prom_56=cover595to56(prod);
+	dif_56 = cover595to56(dif);
 
 
 
@@ -324,9 +326,15 @@ Plot.show()
 //Array.show(prod);
 
 //grafica de los proemdios por cada lamina 60 valores
-Plot.create("Diferencia", "X-axis Label", "Y-axis Label");
-Plot.add("line",prom_prod);
-Plot.add("separated bar",prom_prod);
+Plot.create("prod 56", "X-axis Label", "Y-axis Label");
+Plot.add("line",prom_56);
+Plot.add("separated bar",prom_56);
+Plot.show()
+
+//grafica de los proemdios por cada lamina 60 valores
+Plot.create("Dif 56", "X-axis Label", "Y-axis Label");
+Plot.add("line",dif_56);
+Plot.add("separated bar",dif_56);
 Plot.show()
 
 
