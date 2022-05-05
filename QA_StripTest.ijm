@@ -128,11 +128,11 @@ function cover595to56(valores595) {
 		};
 		
 		if (11 < lamina && lamina < 44){
-			vecindad_laminaPeq = Array.slice(valores595,ini,ini+7);
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+8);
 			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
 			valores56[lamina]=mean;
 			//print("ini: "+ini+"valor de mean " + mean + "\n");
-			ini +=7; 
+			ini +=8; 
 			};
 			
 		if (lamina > 43) {
@@ -142,6 +142,56 @@ function cover595to56(valores595) {
 			//print("ini: "+ini+"valor de mean " + mean + "\n");
 			ini +=14; 
 		};
+
+	};
+	return valores56;
+	
+};
+
+function cover595to56_gap(valores595) { 
+// function description
+    valores56 = newArray(56);
+	//vecindad_laminaGra = newArray(14);
+	//vecindad_laminaPeq = newArray(7);
+	ini = 4;
+	//laminas de 1 cm las 12 primeras y las 12 ultimas
+	for (lamina = 0; lamina < 56; lamina++) {
+		if (lamina < 12 ) {
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
+			valores56[lamina]=mean;
+			//print("ini: "+ini+"valor de mean " + mean + "\n");
+			Dibuja_Punto("red",1,(mean),ini,(mean),ini+10);
+			//Overlay.show;
+			ini += 15;	
+			if (lamina==11) {
+				ini = ini -2;
+			}
+						
+		};
+		
+		if (11 < lamina && lamina < 44){
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+4);
+			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
+			valores56[lamina]=mean;
+			//print("ini: "+ini+"valor de mean " + mean + "\n");
+			Dibuja_Punto("red",1,(mean),ini,(mean),ini+4);
+			//Overlay.show;
+			ini +=7.5; 
+			};
+			
+		if (lamina > 43) {
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
+			valores56[lamina]=mean;
+			Dibuja_Punto("red",1,(mean),ini,(mean),ini+10);
+			//Overlay.show;
+			
+			//print("ini: "+ini+"valor de mean " + mean + "\n");
+			ini +=14; 
+		};
+		
+      
 
 	};
 	return valores56;
@@ -213,6 +263,9 @@ run("Enhance Contrast...", "saturated=0.5");// equalize");
 n = tamanodelaImag/2;
 ValoresImg = newArray(n*n);
 ValoresImg_Filas = newArray(n);
+max_c = newArray;
+max_c_una_franja = newArray;
+prom_c_franjas = newArray;
 max_1 = newArray(n);
 est_1_1 = newArray(n);
 est_2_1 = newArray(n);
@@ -246,10 +299,15 @@ for (i=0;i<n;i++) {
 		
 	     //Trabajado para una fila
 	     //graficar loa max
-	     //encontar la vecindad y los valores HOS     
+	     //encontar la vecindad y los valores HOS  
+	     
+	    
 	     
 	for (t = 0; t < Nume_Lineas_H; t++) {
-	     Dibuja_Punto("red",1,maxLocs_Filas[t],i,maxLocs_Filas[t],i); //ValoresImg_Filas[maxLocs_Filas[0]]	
+		max_c[t+i*Nume_Lineas_H]=maxLocs_Filas[t]; //array con todos las pisiciones de los maximos
+		
+		
+	     //Dibuja_Punto("red",1,round(maxLocs_Filas[t]),i,round(maxLocs_Filas[t]),i); //ValoresImg_Filas[maxLocs_Filas[0]] cetro de cada franja	
 	     	     
 	     // probando multiplicar cada maximo en cada fila para graficar depues y ver si da buenos resultados
 	     prod[i] *= maxLocs_Filas[t] ;	
@@ -271,15 +329,31 @@ for (i=0;i<n;i++) {
 	     		     	     
 	     // almacendo la dif para una franja t
 	     dif[i]=Math.abs(maxLocs_Filas[t]-c);		     
-	     };
-	     		
+	     };     		
+		     		
          };		
 		Overlay.show;
 		
-		
-
 		 
 };	
+
+// buscando el centro y los limites reales de las franjas
+max_c=Array.sort(max_c);
+//Array.print(max_c);
+
+for (i = 0; i < Nume_Lineas_H+1; i++) {
+	max_c_una_franja = Array.slice(max_c,i*595,(i+1)*595);
+	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
+	pos_56 = newArray;
+	pos_56=cover595to56_gap(max_c_una_franja);
+	prom_c_franjas = round(mean);
+	Dibuja_Punto("green",1,prom_c_franjas-1.5,0,prom_c_franjas-1.5,595); // porque 1 mm equivale a 3 pixeles aprox
+	Dibuja_Punto("green",1,prom_c_franjas+1.5,0,prom_c_franjas+1.5,595);
+	
+		
+	Overlay.show;
+		
+}
 
 	//convirtiendo de pixeles a cm
 	//reduzco la matriz de 595 a 60 valores
@@ -293,10 +367,15 @@ for (i=0;i<n;i++) {
 	prom_56=cover595to56(prod);
 	dif_56 = cover595to56(dif);
 
+	dif_56_mm = newArray;
+	for (i = 0; i < lengthOf(dif_56); i++) {
+		dif_56_mm[i]= dif_56[i]*(1/3);
+	}
 
 
-
-//Graficar el producto
+	//dif_56_mm = dif_56*(1/3);
+	
+	//Graficar el producto
 Plot.create("Producto", "X-axis Label", "Y-axis Label")
 Plot.add("line",prod);
 Plot.show()
@@ -331,10 +410,17 @@ Plot.add("line",prom_56);
 Plot.add("separated bar",prom_56);
 Plot.show()
 
-//grafica de los proemdios por cada lamina 60 valores
-Plot.create("Dif 56", "X-axis Label", "Y-axis Label");
+//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
+Plot.create("Dif 56", "lamina", "diefencia en pixel");
 Plot.add("line",dif_56);
 Plot.add("separated bar",dif_56);
+Plot.show()
+
+
+//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
+Plot.create("Dif 56 mm", "lamina", "diferencia en mm");
+//Plot.add("line",dif_56);
+Plot.add("separated bar",dif_56_mm);
 Plot.show()
 
 
@@ -356,3 +442,9 @@ y1=200;
 
 //Datos_de_la_Imag(Acelerador,fecha,RTImageLabel);
 print("return 0");
+	
+
+
+
+
+
