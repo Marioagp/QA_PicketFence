@@ -188,7 +188,7 @@ function cover595to56_gap(valores595, prod_56) {
 			//Overlay.show;
 			//resaltando el error pod_56 < 0.97
 			if (prod_56[lamina]<0.97) {
-				Dibuja_rectangulo("blue", 1, mean-5,ini-2, 10, 6);
+				Dibuja_rectangulo("blue", 1, mean-5,ini-2, 10, 7); //ARREGLAR VALORES
 			}
 			ini +=7.5; 
 			};
@@ -263,8 +263,9 @@ if (prom > mean ) {
 };
 
 //Rotando la imagen
-run("Rotate... ", "angle=-"+0.2+" grid=1 interpolation=Bilinear");
-
+//ARREGLAR
+//run("Rotate... ", "angle=-"+0.1+" grid=1 interpolation=Bilinear"); este es para imagen sin problemas
+run("Rotate... ", "angle=-"+0.2+" grid=1 interpolation=Bilinear"); // imagen con error
 
 //RECORTANDO LA IMAGEN SE USA LA UN CUADRADO DE MITAD DE AREA
 
