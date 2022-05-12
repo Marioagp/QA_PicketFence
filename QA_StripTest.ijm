@@ -143,7 +143,7 @@ function mediana(array_vec) {
 };
 
 
-function cover595to56(valores595) { 
+function cover595to56(valores595) {   //arregalr la funcion
 // function description
     valores56 = newArray(56);
 	//vecindad_laminaGra = newArray(14);
@@ -163,7 +163,7 @@ function cover595to56(valores595) {
 		};
 		
 		if (11 < lamina && lamina < 44){
-			vecindad_laminaPeq = Array.slice(valores595,ini,ini+8);
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+7);
 			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
 			valores56[lamina]=mean;
 			//print("ini: "+ini+"valor de mean " + mean + "\n");
@@ -175,7 +175,7 @@ function cover595to56(valores595) {
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			valores56[lamina]=mean;
 			//print("ini: "+ini+"valor de mean " + mean + "\n");
-			ini +=15; 
+			ini +=14.5; 
 		};
 
 	};
@@ -183,21 +183,19 @@ function cover595to56(valores595) {
 	
 };
 
-function cover595to56_gap(valores595, prod_56) { 
+function dibuja_centros_y_gap(valores595, prod_56) { 
 // function description
-    valores56 = newArray(56);
-	ini = 4;
+    ini = 4;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
 	for (lamina = 0; lamina < 56; lamina++) {
 		if (lamina < 12 ) {
 			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
-			valores56[lamina]=mean;
 			Dibuja_Punto("red",1,(mean),ini,(mean),ini+10);
 			
 			//resaltando el error pod_56 < 0.97
 			if (prod_56[lamina]<0.97) {
-				Dibuja_rectangulo("blue", 1, mean-5,ini-2.5, 10, 15);//	AREGLAR VALORES				
+				Dibuja_rectangulo("blue", 1, mean-5,ini-2.5, 10, 14);			
 			}
 			ini += 15;	
 			//correccion del paso de las laminas grandes a las chicas
@@ -210,12 +208,11 @@ function cover595to56_gap(valores595, prod_56) {
 		if (11 < lamina && lamina < 44){
 			vecindad_laminaPeq = Array.slice(valores595,ini,ini+4);
 			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
-			valores56[lamina]=mean;
 			Dibuja_Punto("red",1,(mean),ini,(mean),ini+4);
 			
 			//resaltando el error pod_56 < 0.97
 			if (prod_56[lamina]<0.97) {
-				Dibuja_rectangulo("blue", 1, mean-5,ini-1.75, 10, 7); 
+				Dibuja_rectangulo("blue", 1, mean-5,ini-1.25, 10, 7); 
 			}
 			ini +=7.5; 
 			};
@@ -223,21 +220,16 @@ function cover595to56_gap(valores595, prod_56) {
 		if (lamina > 43) {
 			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
-			valores56[lamina]=mean;
 			Dibuja_Punto("red",1,(mean),ini,(mean),ini+10);
 			//resaltando el error pod_56 < 0.97
 			if (prod_56[lamina]<0.97) {
-				Dibuja_rectangulo("blue", 1, mean-11,ini-5, 22, 16);//	AREGLAR VALORES
+				Dibuja_rectangulo("blue", 1, mean-5,ini-2.5, 10, 14);
 				}
 			
 			//print("ini: "+ini+"valor de mean " + mean + "\n");
 			ini +=14.5; 
 		};
-		
-      
-
 	};
-	return valores56;	
 };
 
 function ploting() { 
@@ -414,12 +406,12 @@ for (i=0;i<n;i++) {
 	     //print(i+"  centro del max: "+ maxLocs_Filas[t]+" Centro de Gauss: "+c+" Resta " + (maxLocs_Filas[t]-c));
 	     
 	     //calculando kurtosis y skewness para la franja t		     
-	     if (t == 4) {		     
+	     if (t == 0) {		     
 	     skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
 	     kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
 	     		     	     
 	     // almacendo la dif para una franja t
-	     dif[i]=Math.abs(maxLocs_Filas[t]-c);		     
+	     dif[i]=Math.abs(maxLocs_Filas[t]- 150);		//ARREGLAR HACRELO PARA CADA LAMINA Y CAMNIBRA EL 150     
 	     };     		
 		     		
          };		
@@ -439,6 +431,7 @@ for (i = 0; i < l; i++) {
 
 prod_56=cover595to56(prod);
 dif_56 = cover595to56(dif);
+
 	
 
 // buscando el centro y los limites reales de las franjas
@@ -447,11 +440,10 @@ max_c=Array.sort(max_c);
 
 valores_centro_franjas = newArray(Nume_Lineas_H); // almaceno las posiciones de los centros de cada franja
 
-for (i = 0; i < Nume_Lineas_H+1; i++) {
+for (i = 0; i < Nume_Lineas_H; i++) {
 	max_c_una_franja = Array.slice(max_c,i*595,(i+1)*595);
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
-	pos_56 = newArray;
-	pos_56=cover595to56_gap(max_c_una_franja,prod_56);
+	dibuja_centros_y_gap(max_c_una_franja,prod_56);
 	prom_c_franjas = round(mean);
 	Dibuja_Punto("green",1,prom_c_franjas-1.5,0,prom_c_franjas-1.5,595); // porque 1 mm equivale a 3 pixeles aprox
 	Dibuja_Punto("green",1,prom_c_franjas+1.5,0,prom_c_franjas+1.5,595);
