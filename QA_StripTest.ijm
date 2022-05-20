@@ -48,7 +48,7 @@ function corrige_angulo(x) {
 		run("Rotate... ", "angle=-"+0.1+" grid=1 interpolation=Bilinear"); //este es para imagen sin errores intencionados	
 	}
 	else {
-		run("Rotate... ", "angle=-"+0.2+" grid=1 interpolation=Bilinear"); // imagen con error intencionaddo
+		run("Rotate... ", "angle=-"+0.13+" grid=1 interpolation=Bilinear"); // imagen con error intencionaddo
 	}
 }
 
@@ -256,7 +256,7 @@ function ploting() {
 	
 	//grafica diferencia para linea igual a t	
 	Plot.create("Diferencia", "X-axis Label", "Y-axis Label");
-	Plot.add("line",dif);
+	Plot.add("line",prom_dif);
 	Plot.show()
 	//Plot.add("error bars",dif);
 	//Graficar el producto
@@ -353,7 +353,7 @@ max_1 = newArray(n);
 est_1_1 = newArray(n);
 est_2_1 = newArray(n);
 est_3_1 = newArray(n);
-dif = newArray(n);
+dif = newArray();
 prod = newArray(n);
 skewness_valo_1 = newArray (n);
 kurtosis_valo_1 = newArray (n);
@@ -367,7 +367,7 @@ for (i=0;i<n;i++) {
 		
 		maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuantra los valores maximos de la fila i
 		maxLocs_Filas=Array.sort(maxLocs_Filas);//los ordeno de menor a mayor o izq a derech
-		max_1[i]= maxLocs_Filas[0]; //para plotear despues y comprobar
+		//max_1[i]= maxLocs_Filas[0]; //para plotear despues y comprobar
 		
 		
 		
@@ -392,7 +392,7 @@ for (i=0;i<n;i++) {
 		
 	     //Dibuja_Punto("red",1,round(maxLocs_Filas[t]),i,round(maxLocs_Filas[t]),i); //ValoresImg_Filas[maxLocs_Filas[0]] cetro de cada franja	
 	     	     
-	     // probando multiplicar cada maximo en cada fila para graficar depues y ver si da buenos resultados
+	     //multiplicar cada maximo en cada fila para encontar error 
 	     prod[i] *= maxLocs_Filas[t] ;	
 	     	     
 	     // vecindad
@@ -411,7 +411,7 @@ for (i=0;i<n;i++) {
 	     kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
 	     		     	     
 	     // almacendo la dif para una franja t
-	     dif[i]=Math.abs(maxLocs_Filas[t]- 150);		//ARREGLAR HACRELO PARA CADA LAMINA Y CAMNIBRA EL 150     
+	     //dif[i]=Math.abs(maxLocs_Filas[t]- 150);		//ARREGLAR HACRELO PARA CADA LAMINA Y CAMNIBRA EL 150     
 	     };     		
 		     		
          };		
@@ -419,6 +419,7 @@ for (i=0;i<n;i++) {
 		
 		 
 };	
+
 
 //convirtiendo de pixeles a cm
 //reduzco la matriz de 595 a 60 valores
@@ -430,33 +431,53 @@ for (i = 0; i < l; i++) {
 };
 
 prod_56=cover595to56(prod);
-dif_56 = cover595to56(dif);
+
 
 	
 
 // buscando el centro y los limites reales de las franjas
-max_c=Array.sort(max_c);
-//Array.print(max_c);
+max_c_c= newArray();
+max_c_c = Array.copy(max_c); //hay que hacerlo asi para evitar la refrencia a los datos existentes
+max_c=Array.sort(max_c); 
 
-valores_centro_franjas = newArray(Nume_Lineas_H); // almaceno las posiciones de los centros de cada franja
 
-for (i = 0; i < Nume_Lineas_H; i++) {
-	max_c_una_franja = Array.slice(max_c,i*595,(i+1)*595);
+for (t = 0; t < Nume_Lineas_H; t++) {
+	max_c_una_franja = Array.slice(max_c,t*595,(t+1)*595); //no me interera que este ordenado pq saco el pomedio
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
 	dibuja_centros_y_gap(max_c_una_franja,prod_56);
 	prom_c_franjas = round(mean);
 	Dibuja_Punto("green",1,prom_c_franjas-1.5,0,prom_c_franjas-1.5,595); // porque 1 mm equivale a 3 pixeles aprox
 	Dibuja_Punto("green",1,prom_c_franjas+1.5,0,prom_c_franjas+1.5,595);
-	valores_centro_franjas[i]=prom_c_franjas;
+	//valores_centro_franjas[t]=prom_c_franjas;
+
+	for (i = 0; i < 595; i++) {
+		// almacendo la dif para una franja t
+		dif[i+t*595]=Math.abs(max_c_c[t+i*(Nume_Lineas_H)] - mean); // en vez de max_c deberia ser el valor del ajuste gaussinao
+	};
 		
-	Overlay.show;
-		
-}	
-	//convertir a mm la diferencia en pixeles
-	dif_56_mm = newArray;
-	for (i = 0; i < lengthOf(dif_56); i++) {
-		dif_56_mm[i]= dif_56[i]*(1/3);
-	}
+	Overlay.show;		
+}
+
+//promedio la diferencia para cada fila es decir promedio a la vez tantos valores como franjas haya
+prom_dif = newArray();
+temp_dif = newArray(Nume_Lineas_H);
+
+for (i = 0; i < 595; i++) {
+	for (t = 0; t < Nume_Lineas_H; t++) {
+		temp_dif[t] = dif[t*595+i];		
+	};
+	//Array.print(temp_dif);
+	//print("\n");
+	Array.getStatistics(temp_dif, min, max, mean, stdDev);
+	prom_dif[i]=mean;
+};
+//Array.print(prom_dif);
+//convertir a mm la diferencia en pixeles
+dif_56 = cover595to56(prom_dif);
+dif_56_mm = newArray;
+for (i = 0; i < lengthOf(dif_56); i++) {
+	dif_56_mm[i]= dif_56[i]*(1/3);
+};
 
 
 ploting();
