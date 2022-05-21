@@ -309,6 +309,9 @@ l=list.length
 path=dir+list[0];open(path);
 name = File.getName(path); //obtiene el valor del nombre de la imagen
 
+//duplica la imagen y trabajo con el duplicado
+run("Duplicate...", "title=["+name+" Area de Interés.dcm]");
+
 datos = newArray(4);
 datos=obtener_datos_DICOM();
 
