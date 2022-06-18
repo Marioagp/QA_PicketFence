@@ -3,17 +3,19 @@
 function obtener_datos_DICOM() { 
 //obtiene datos de la imagen DICOM
     datos = newArray(4);
-	Acelerador=getInfo("0008,1010");
-	fecha=getInfo("0008,0022");	
+	Acelerador=getInfo("0008,1010"); // Obtiene información del Acelerador
+	fecha=getInfo("0008,0022");	     // Obtiene la fecha de la prueba
 	RTImageLabel = getInfo("3002,0002"); // para identificar si es una prueba con o sin ERROR INTENCIONADO 
-	tamanodelaImag=getInfo("0028,0011");
-	tamanodelaImag=parseInt(tamanodelaImag) // String to number
+	tamanodelaImag=getInfo("0028,0011"); // Obtiene el tamaño de la imagen
+	tamanodelaImag=parseInt(tamanodelaImag) // convierte de String to int
 	
+	// almacena los valores para luego devolverlos en un array
 	datos[0]=Acelerador;
 	datos[1]=fecha;
 	datos[2]=RTImageLabel;
 	datos[3]=tamanodelaImag;
 	
+	// muetra los datos de la prueba analizada
 	Array.print(datos);
 	
 	return datos;	
@@ -41,50 +43,53 @@ print(" - - - - - - - - - - - - - - - - - - - - - - ");
 };
 
 function corrige_angulo(x) { 
-//Rotando la imagen para corregir angulo 
+//Rotando la imagen para corregir angulo de defasaje
 	if (x==" MV_187_1a "){
-		run("Rotate... ", "angle=-"+0.1+" grid=1 interpolation=Bilinear"); //este es para imagen sin errores intencionados	
+		//Imagen sin errores intencionados (determinado empíricamente)
+		run("Rotate... ", "angle=-"+0.1+" grid=1 interpolation=Bilinear"); 	
 	};
 	else {
-		run("Rotate... ", "angle=-"+0.13+" grid=1 interpolation=Bilinear"); // imagen con error intencionaddo
+		//Imagen con error intencionados (determinado empíricamente)
+		run("Rotate... ", "angle=-"+0.13+" grid=1 interpolation=Bilinear"); 
 	};
 };
 
 
 function Dibuja_rectangulo(color, lineWidth, x, y, width, height) {
 	//Dibuja un rectángulo, donde (x,y) especifica la esquina superior izquierda.
-	//Usado para realtar Error en la lamina	
+	//Usado para realtar Error en la lámina	
 		setColor(color);
 		setLineWidth(lineWidth);
 		Overlay.drawRect(x, y, width, height);
 };
 
 function Dibuja_Punto(color, lineWidth, x0, y0, x1, y1) {
-	//Para dibijar las lineas en la figura
+	//Para dibujar las líneas en la figura
 		setColor(color);
 		setLineWidth(lineWidth);
 		Overlay.drawLine(x0, y0, x1, y1);		
 };
 
 function cento_del_GaussianAdjust(vecindad,x_centro_real) { 
-// function description
+		//Función para determinar la diferencia entre el centroide mediante un ajuste gausiano
+		//y el punto de mas intensidad
+		//recibe como entrada el punto de mayor intencidad y la vecindad de valores 
 X = newArray(lengthOf(vecindad));
 for (i = 0; i < lengthOf(vecindad); i++) {
 	    	X[i]=i;
 	    	};
     Fit.doFit("Gaussian", X, vecindad);  //ajuste gaussiano      
-    // para ver los resultados
     x_centro = Fit.p(2); //obtine el centro de la curva gaussiana
-    //x_centro= Math.round(x_centro);
-   return x_centro_real - 16 + x_centro        
+    return x_centro_real - 16 + x_centro //ajustando para adaptar a la X de la franja que correponde   
     };
 
 
-function cover595to56(valores595) {   //arregalr la funcion
-// para convertir de lo 595 pixelesa 56 valores corerspondinetes a la cantidad de leafs
+function cover595to56(valores595) {   
+// para convertir de lo 595 pixeles a 56 valores correspondietes a la cantidad de leafs
     valores56 = newArray(56);
 	ini = 4;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
+	// los vaslores de suma son para calibrar segun la correpondencia pixel-cm
 	for (lamina = 0; lamina < 56; lamina++) {
 		if (lamina < 12 ) {
 			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
@@ -161,9 +166,8 @@ function dibuja_centros_y_gap(valores595, prod_56) {
 		};
 	};
 };
-
+//*********************funciones que muestran la informacion en graficas**********************
 function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
-// Funcion para plotear todo
 	//Graficar el producto
 	Plot.create("Producto", "X-axis Label", "Y-axis Label")
 	Plot.add("line",prod);
@@ -197,7 +201,7 @@ function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
 
 
 
-   //******************************************************************************************************
+//******************************************************************************************************
 
 //main()
 close("*")
@@ -214,14 +218,9 @@ dir = getDirectory("Selecciona Carpeta");
 list=getFileList(dir);
 l=list.length
 
-//ARREGLAR PARA QU ENO SE PUEDA ELEGIR UN ARCHIVO ERRONES
-//dcm_t = endsWith(list[0],".dcm");
-//if (dcm_t == 0){
-//	exit("ELEGIR UNA IMAGEN con extención .dcm");	
-//};
 
-//seleccionar la primera imagen de la carpeta
-path=dir+list[0];open(path);
+//selecciona la primera imagen de la carpeta
+path=dir+list[0];open(path); //guarda los nombres de todos los elementos de la carpeta
 name = File.getName(path); //obtiene el valor del nombre de la imagen
 
 datos = newArray(4);
@@ -251,13 +250,13 @@ if (prom > mean ) {
 
 corrige_angulo(datos[2]);
 
-//RECORTANDO LA IMAGEN SE USA LA UN CUADRADO DE MITAD DE AREA
+//recoertando el area de interes, cuadrado con lado mitad del tamaño de la imagen
 
 run("Specify...", "width="+datos[3]/2+" height="+datos[3]/2+" x="+datos[3]/2+" y="+datos[3]/2+" constrain centered");
 run("Crop");
 run("Median...", "radius=2"); //elimnado ruido aleatorio
-saveAs("Tiff", getDirectory("temp")+"tmp_cropped.tif");	// saves image to revert to later
-run("Enhance Contrast...", "saturated=0.5");// equalize");
+saveAs("Tiff", getDirectory("temp")+"tmp_cropped.tif");	// guarda la imagen para volver a ella más tarde
+run("Enhance Contrast...", "saturated=0.5");// aumenta el contraste
 //run("Find Edges");
 
 // Almacenando los datos de la imagen en un array
@@ -277,19 +276,18 @@ for (i=0;i<n;i++) {
 		ValoresImg_Filas[j]= getPixel(j,i);	// se almacenan los valores de la fila en curso (numero de fila i)
 		};
 				
-		maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuantra los valores maximos de la fila i
+		maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuentra los valores maximos de la fila i
 		maxLocs_Filas=Array.sort(maxLocs_Filas);//los ordeno de menor a mayor o izq a derecha		
 		
 	if (i==0) {
-		Nume_Lineas_H = lengthOf(maxLocs_Filas); //Numero de maximos en la primera fila, para determiar cuatos arreglos de maxi 
+		Nume_Lineas_H = lengthOf(maxLocs_Filas); //Número de máximos en la primera fila, para determiar cuantos arreglos de maxi 
 			                                     //tengo que crear	
 	     };
-	     
-		prod[i] = 1; // inicializacion en uno para la operacion despues 
+	    // inicializacion en uno para la operacion despues 
+		prod[i] = 1;  
 		dif[i] = 1;
 		
-	     //Trabajado para una fila
-	     
+	     //Trabajado para una fila	     
 	for (t = 0; t < Nume_Lineas_H; t++) {
 		max_c[t+i*Nume_Lineas_H]=maxLocs_Filas[t]; //array con todos las pisiciones de los maximos
 	     	     
@@ -325,7 +323,7 @@ max_c=Array.sort(max_c);
 
 
 for (t = 0; t < Nume_Lineas_H; t++) {
-	max_c_una_franja = Array.slice(max_c,t*595,(t+1)*595); //no me interera que este ordenado pq saco el pomedio
+	max_c_una_franja = Array.slice(max_c,t*595,(t+1)*595); 
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
 	dibuja_centros_y_gap(max_c_una_franja,prod_56);
 	prom_c_franjas = round(mean);
@@ -335,13 +333,14 @@ for (t = 0; t < Nume_Lineas_H; t++) {
 
 	for (i = 0; i < 595; i++) {
 		// almacendo la dif para una franja t
-		dif[i+t*595]=Math.abs(max_c_c[t+i*(Nume_Lineas_H)] - mean); // en vez de max_c deberia ser el valor del ajuste gaussinao
+		// en vez de max_c deberia ser el valor del ajuste gaussinao
+		dif[i+t*595]=Math.abs(max_c_c[t+i*(Nume_Lineas_H)] - mean); 
 	};
 		
 	Overlay.show;		
 }
 
-//promedio la diferencia para cada fila es decir promedio a la vez tantos valores como franjas haya
+//promedio la diferencia para cada fila es decir promedio a la vez tantos valores como franjas existan
 prom_dif = newArray();
 temp_dif = newArray(Nume_Lineas_H);
 
