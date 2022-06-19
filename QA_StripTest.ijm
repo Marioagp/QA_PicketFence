@@ -70,7 +70,7 @@ function Dibuja_Punto(color, lineWidth, x0, y0, x1, y1) {
 		Overlay.drawLine(x0, y0, x1, y1);		
 };
 
-function cento_del_GaussianAdjust(vecindad,x_centro_real) { 
+function Dif_entre_centroides_Gauss(vecindad,x_centro_real) { 
 		//Función para determinar la diferencia entre el centroide mediante un ajuste gausiano
 		//y el punto de mas intensidad
 		//recibe como entrada el punto de mayor intencidad y la vecindad de valores 
@@ -275,7 +275,7 @@ for (i=0;i<n;i++) {
 		ValoresImg[(n*i)+j]= getPixel(j,i);	// se almacena todos los valores de imagem n*n	
 		ValoresImg_Filas[j]= getPixel(j,i);	// se almacenan los valores de la fila en curso (numero de fila i)
 		};
-				
+	
 		maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuentra los valores maximos de la fila i
 		maxLocs_Filas=Array.sort(maxLocs_Filas);//los ordeno de menor a mayor o izq a derecha		
 		
@@ -299,7 +299,7 @@ for (i=0;i<n;i++) {
 	     Array.getStatistics(vecindad, min, max, mean, stdDev);
 	     
 	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
-	     c = cento_del_GaussianAdjust(vecindad,maxLocs_Filas[t]);		     		
+	     c = Dif_entre_centroides_Gauss(vecindad,maxLocs_Filas[t]);		     		
          };		
 		Overlay.show;	
 		 
@@ -327,8 +327,8 @@ for (t = 0; t < Nume_Lineas_H; t++) {
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
 	dibuja_centros_y_gap(max_c_una_franja,prod_56);
 	prom_c_franjas = round(mean);
-	Dibuja_Punto("green",1,prom_c_franjas-1.5,0,prom_c_franjas-1.5,595); // porque 1 mm equivale a 3 pixeles aprox
-	Dibuja_Punto("green",1,prom_c_franjas+1.5,0,prom_c_franjas+1.5,595);
+	Dibuja_Punto("green",1,prom_c_franjas-2,0,prom_c_franjas-2,595); // porque 1 mm equivale a ~3 pixeles (hay q usar 2) 
+	Dibuja_Punto("green",1,prom_c_franjas+2,0,prom_c_franjas+2,595); // para una correcta visualizacion
 	//valores_centro_franjas[t]=prom_c_franjas;
 
 	for (i = 0; i < 595; i++) {
@@ -357,7 +357,7 @@ dif_56 = cover595to56(prom_dif);
 dif_56_mm = newArray;
 
 for (i = 0; i < lengthOf(dif_56); i++) {
-	dif_56_mm[i]= dif_56[i]*(1/3);
+	dif_56_mm[i]= dif_56[i]*0.336;
 };
 
 
