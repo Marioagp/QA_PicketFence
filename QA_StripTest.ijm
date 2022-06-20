@@ -126,9 +126,12 @@ function kurtosis(datos,mean,StDv) {
 		for (i = 0; i < n; i++) {
 			kurtosis_n+=Math.pow((datos[i]-mean), 4);
 		};    
-     	 return kurtosis_n/(n*(Math.pow(StDv,4)));  
+		for (i = 0; i < n; i++) {
+			kurtosis_d+=Math.pow((datos[i]-mean), 2);
+		};
+     	 kt= ((1/n)*kurtosis_n)/(Math.pow((1/n)*kurtosis_d, 2));  
+     	 return kt;
 };
-
 
 function cover595to56(valores595) {   
 // para convertir de lo 595 pixeles a 56 valores correspondietes a la cantidad de leafs
