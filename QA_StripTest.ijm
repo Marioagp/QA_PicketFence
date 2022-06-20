@@ -70,18 +70,64 @@ function Dibuja_Punto(color, lineWidth, x0, y0, x1, y1) {
 		Overlay.drawLine(x0, y0, x1, y1);		
 };
 
-function Dif_entre_centroides_Gauss(vecindad,x_centro_real) { 
-		//Función para determinar la diferencia entre el centroide mediante un ajuste gausiano
-		//y el punto de mas intensidad
-		//recibe como entrada el punto de mayor intencidad y la vecindad de valores 
+function Centro_Gaussiana(vecindad) { 
+		//Función para determinar el cetro gausiano
+		//recibe como entrada la vecindad de valores 
 X = newArray(lengthOf(vecindad));
 for (i = 0; i < lengthOf(vecindad); i++) {
 	    	X[i]=i;
 	    	};
     Fit.doFit("Gaussian", X, vecindad);  //ajuste gaussiano      
     x_centro = Fit.p(2); //obtine el centro de la curva gaussiana
-    return x_centro_real - 16 + x_centro //ajustando para adaptar a la X de la franja que correponde   
+    return x_centro   
     };
+    
+ 
+function Centro_centroide(vecindad) { 
+		//Función para determinar el cetro gausiano
+		//recibe como entrada la vecindad de valores
+		
+		den=0;
+		num=0;
+		X = newArray(lengthOf(vecindad));
+		for (i = 0; i < lengthOf(vecindad); i++) {
+			    	X[i]=i;
+			    	};
+	    for (i = 0; i < lengthOf(vecindad); i++) {
+	    	num+=X[i]*vecindad[i];
+	    };
+	    for (i = 0; i < lengthOf(vecindad); i++) {
+	    	den+=vecindad[i];
+	    };
+	    
+	    x_centro = num/den;
+
+		return x_centro   
+ };
+ 
+ 
+function skewness(datos,mean,StDv) { 
+		
+		n = lengthOf(datos);
+		skewnees_n=0;
+		for (i = 0; i < n; i++) {
+			skewnees_n+=Math.pow((datos[i]-mean), 3);
+		} 
+		for (i = 0; i < n; i++) {
+			skewnees_d+=Math.pow((datos[i]-mean), 2);
+		} 
+		sk =   skewnees_n * (1/n) * (1/(Math.pow(Math.sqrt((1/n)*skewnees_d),3)));
+	   return sk
+};
+
+
+function kurtosis(datos,mean,StDv) { 
+		n = lengthOf(datos);
+		for (i = 0; i < n; i++) {
+			kurtosis_n+=Math.pow((datos[i]-mean), 4);
+		};    
+     	 return kurtosis_n/(n*(Math.pow(StDv,4)));  
+};
 
 
 function cover595to56(valores595) {   
@@ -196,6 +242,16 @@ function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
 	Plot.create("Dif 56 mm", "lamina", "diferencia en mm");
 	Plot.add("separated bar",dif_56_mm);
 	Plot.show()
+	
+    //Graficar el skewness
+	Plot.create("Skewness", "X-axis Label", "Y-axis Label");
+	Plot.add("line", skewness_valo_1);
+	Plot.show()
+	
+	//Graficar el kurtosis
+	Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
+	Plot.add("line", kurtosis_valo_1);
+	Plot.show()
 
 };
 
@@ -264,10 +320,15 @@ n = datos[3]/2; // mitad del tanaño de la imagen 595 pixeles
 ValoresImg = newArray(n*n); // Total de pixeles de la imagen 595*595
 ValoresImg_Filas = newArray(n);
 max_c = newArray;
+max_c_gauss = newArray;
 max_c_una_franja = newArray;
 prom_c_franjas = newArray;
 dif = newArray();
 prod = newArray(n);
+max_c_centroide = newArray();
+skewness_valo_1 = newArray();
+kurtosis_valo_1 = newArray();
+
 
 
 for (i=0;i<n;i++) {
@@ -290,17 +351,29 @@ for (i=0;i<n;i++) {
 	     //Trabajado para una fila	     
 	for (t = 0; t < Nume_Lineas_H; t++) {
 		max_c[t+i*Nume_Lineas_H]=maxLocs_Filas[t]; //array con todos las pisiciones de los maximos
-	     	     
+	      
 	     //multiplicar cada maximo en cada fila para encontar error 
 	     prod[i] *= maxLocs_Filas[t] ;	
 	     	     
 	     // vecindad
 	     vecindad = Array.slice(ValoresImg_Filas,maxLocs_Filas[t]-15,maxLocs_Filas[t]+15);		     		     
 	     Array.getStatistics(vecindad, min, max, mean, stdDev);
+	     // almaceno los centros de las gausianas para cada franja
+	     max_c_gauss[t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_Gaussiana(vecindad); 	
+	     max_c_centroide [t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_centroide(vecindad);   
 	     
 	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
-	     c = Dif_entre_centroides_Gauss(vecindad,maxLocs_Filas[t]);		     		
-         };		
+	     
+	     //c = maxLocs_Filas[t] - 16 + Centro_Gaussiana(vecindad); //ajustando para adaptar a la X de la franja que correponde		     		
+         if (t == 1) {	
+         	Array.print(vecindad);	
+         	print("\n");     
+	         skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
+	         kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
+	     		     	     
+	     }; 
+         };	
+	
 		Overlay.show;	
 		 
 };	
@@ -318,23 +391,27 @@ prod_56=cover595to56(prod);
 
 // buscando el centro y los limites reales de las franjas
 max_c_c= newArray();
-max_c_c = Array.copy(max_c); //hay que hacerlo asi para evitar la refrencia a los datos existentes
-max_c=Array.sort(max_c); 
+max_c_c = Array.sort(Array.copy(max_c)); //hay que hacerlo asi para evitar la referencia a los datos existentes
+max_c_gauss=Array.sort(max_c_gauss); 
+
 
 
 for (t = 0; t < Nume_Lineas_H; t++) {
-	max_c_una_franja = Array.slice(max_c,t*595,(t+1)*595); 
+		//se dibija los centros segun la intesidad no por el ajuste gausiano
+	max_c_una_franja_int = Array.slice(max_c_gauss,t*595,(t+1)*595);
+	dibuja_centros_y_gap(max_c_una_franja_int,prod_56);
+	// se dibujan las franjas basados en ajuste
+	max_c_una_franja = Array.slice(max_c_gauss,t*595,(t+1)*595); //en cada ciclo se obtienen las x de los max de intensidad
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
-	dibuja_centros_y_gap(max_c_una_franja,prod_56);
 	prom_c_franjas = round(mean);
 	Dibuja_Punto("green",1,prom_c_franjas-2,0,prom_c_franjas-2,595); // porque 1 mm equivale a ~3 pixeles (hay q usar 2) 
 	Dibuja_Punto("green",1,prom_c_franjas+2,0,prom_c_franjas+2,595); // para una correcta visualizacion
-	//valores_centro_franjas[t]=prom_c_franjas;
+	
+
 
 	for (i = 0; i < 595; i++) {
 		// almacendo la dif para una franja t
-		// en vez de max_c deberia ser el valor del ajuste gaussinao
-		dif[i+t*595]=Math.abs(max_c_c[t+i*(Nume_Lineas_H)] - mean); 
+		dif[i+t*595]=Math.abs(max_c[t+i*(Nume_Lineas_H)] - mean); 
 	};
 		
 	Overlay.show;		
