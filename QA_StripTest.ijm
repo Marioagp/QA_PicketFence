@@ -217,6 +217,12 @@ function dibuja_centros_y_gap(valores595, prod_56) {
 };
 //*********************funciones que muestran la informacion en graficas**********************
 function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
+	//se crea una variable para graficar el número de las láminas correctamente
+	L = Array.getSequence(57);
+	for (i = 0; i < 2; i++) {
+		L = Array.deleteIndex(L, 0);
+	};
+	
 	//Graficar el producto
 	Plot.create("Producto", "X-axis Label", "Y-axis Label")
 	Plot.add("line",prod);
@@ -230,20 +236,20 @@ function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
 
 	//grafica de los proemdios por cada lamina 60 valores
 	Plot.create("prod 56", "X-axis Label", "Y-axis Label");
-	Plot.add("line",prod_56);
-	Plot.add("separated bar",prod_56);
+	Plot.add("line",L,prod_56);
+	Plot.add("separated bar",L,prod_56);
 	Plot.show()
 	
 	//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
 	Plot.create("Dif 56", "lamina", "diefencia en pixel");
-	Plot.add("line",dif_56);
-	Plot.add("separated bar",dif_56);
+	Plot.add("line",L,dif_56);
+	Plot.add("separated bar",L,dif_56);
 	Plot.show()
 	
 	
 	//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
 	Plot.create("Dif 56 mm", "lamina", "diferencia en mm");
-	Plot.add("separated bar",dif_56_mm);
+	Plot.add("separated bar",L,dif_56_mm);
 	Plot.show()
 	
     //Graficar el skewness
@@ -254,6 +260,11 @@ function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
 	//Graficar el kurtosis
 	Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
 	Plot.add("line", kurtosis_valo_1);
+	Plot.show()
+	
+	//Graficar el error por correspondencia con producto
+	Plot.create("Error promedio ", "X-axis Label", "Y-axis Label");
+	Plot.add("line",L, error_prod);
 	Plot.show()
 
 };
@@ -355,8 +366,7 @@ for (i=0;i<n;i++) {
 	for (t = 0; t < Nume_Lineas_H; t++) {
 		max_c[t+i*Nume_Lineas_H]=maxLocs_Filas[t]; //array con todos las pisiciones de los maximos
 	      
-	     //multiplicar cada maximo en cada fila para encontar error 
-	     prod[i] *= maxLocs_Filas[t] ;	
+	     	
 	     	     
 	     // vecindad
 	     vecindad = Array.slice(ValoresImg_Filas,maxLocs_Filas[t]-15,maxLocs_Filas[t]+15);		     		     
@@ -364,13 +374,16 @@ for (i=0;i<n;i++) {
 	     // almaceno los centros de las gausianas para cada franja
 	     max_c_gauss[t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_Gaussiana(vecindad); 	
 	     max_c_centroide [t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_centroide(vecindad);   
+	     //multiplicar cada maximo en cada fila para encontar error
+	     //mejor resultado con este max para algunos
+	     //prod[i] *= max_c_gauss[t+i*Nume_Lineas_H];	      
+	     prod[i] *= maxLocs_Filas[t] ;
 	     
 	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
 	     
 	     //c = maxLocs_Filas[t] - 16 + Centro_Gaussiana(vecindad); //ajustando para adaptar a la X de la franja que correponde		     		
-         if (t == 1) {	
-         	Array.print(vecindad);	
-         	print("\n");     
+         if (t == 2) {	
+
 	         skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
 	         kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
 	     		     	     
@@ -416,7 +429,6 @@ for (t = 0; t < Nume_Lineas_H; t++) {
 		// almacendo la dif para una franja t
 		dif[i+t*595]=Math.abs(max_c[t+i*(Nume_Lineas_H)] - mean); 
 	};
-		
 	Overlay.show;		
 }
 
@@ -436,12 +448,35 @@ for (i = 0; i < 595; i++) {
 dif_56 = cover595to56(prom_dif);
 dif_56_mm = newArray;
 
+
 for (i = 0; i < lengthOf(dif_56); i++) {
 	dif_56_mm[i]= dif_56[i]*0.336;
 };
 
 
-ploting();
+//ploting();
+
+	L = Array.getSequence(57);
+	for (i = 0; i < 2; i++) {
+		L = Array.deleteIndex(L, 0);
+	};
+
+	
+	//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
+	Plot.create("Dif 56 mm", "lamina", "diferencia en mm");
+
+	Plot.add("separated bar",L,dif_56_mm);
+	Plot.show()
+	
+
+//grafica de los proemdios por cada lamina 60 valores
+Plot.create("prod 56", "X-axis Label", "Y-axis Label");
+Plot.add("line",L,prod_56);
+Plot.add("separated bar",L,prod_56);
+Plot.show()
+
+
+
 print("return 0");
 	
 
