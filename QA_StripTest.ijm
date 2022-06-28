@@ -2,7 +2,7 @@
 
 function obtener_datos_DICOM() { 
 //obtiene datos de la imagen DICOM
-    datos = newArray(4);
+    datos = newArray(3);
 	Acelerador=getInfo("0008,1010"); // Obtiene información del Acelerador
 	fecha=getInfo("0008,0022");	     // Obtiene la fecha de la prueba
 	RTImageLabel = getInfo("3002,0002"); // para identificar si es una prueba con o sin ERROR INTENCIONADO 
@@ -11,14 +11,18 @@ function obtener_datos_DICOM() {
 	
 	// almacena los valores para luego devolverlos en un array
 	datos[0]=Acelerador;
-	datos[1]=fecha;
-	datos[2]=RTImageLabel;
-	datos[3]=tamanodelaImag;
+	datos[1]=RTImageLabel;
+	datos[2]=tamanodelaImag;
 	
-	// muetra los datos de la prueba analizada
-	Array.print(datos);
+	//Dar formato a la fecha
+	date = newArray(3);
+    date[0] = substring(fecha, 1, 5);
+    date[1] = substring(fecha, 5, 7);
+    date[2] = substring(fecha, 7, 9);  	
+    
+	datosG = Array.concat(datos, date);
+	return datosG;	
 	
-	return datos;	
 };
 
 
@@ -40,7 +44,7 @@ else {
       exit("ELEGIR UNA IMAGEN PROVENIENTE DE LAS PRUEBAS: Test 1.1 Picket Fence RapidArc o Test 1.2 Picket Fence Error"); 
      };
 };
-print(""); print("Acelerador: "+Acelerador); print("Fecha del estudio: "+ fecha);print("");
+print(""); print("Acelerador: "+Acelerador);print("Fecha del estudio: "+fecha[5]+"/"+fecha[4]+"/"+fecha[3]);print("");
 print(" - - - - - - - - - - - - - - - - - - - - - - ");
 
 };
@@ -205,7 +209,7 @@ path=dir+list[0];open(path);
  //guarda los nombres de todos los elementos de la carpeta
 name = File.getName(path); //obtiene el valor del nombre de la imagen
 
-datos = newArray(4);
+datos = newArray(6);
 datos=obtener_datos_DICOM();
 
 
@@ -214,14 +218,14 @@ run("Duplicate...", "title=[ ROI1.dcm]");
 
 
 //mostrando caracteristicas de la imagen
-Datos_de_la_Imag(datos[0],datos[1],datos[2]);
+Datos_de_la_Imag(datos[0],datos,datos[1]);
 
 //invertir imagen si es esta tomada en fondo blanco
 //obtengo los valores de las esquinas
 X_00=getPixel(0, 0);
-X_01=getPixel(0, datos[3]-1);
-X_10=getPixel(datos[3]-1, 0);
-X_11=getPixel(datos[3]-1, datos[3]-1);
+X_01=getPixel(0, datos[2]-1);
+X_10=getPixel(datos[2]-1, 0);
+X_11=getPixel(datos[2]-1, datos[2]-1);
 //promedio de la estos valores
 prom=(X_00 + X_01 + X_10 + X_11)/4;
 getStatistics(area, mean, min, max, std, histogram);
@@ -230,11 +234,11 @@ if (prom > mean ) {
 	run("Invert");
 };
 
-corrige_angulo(datos[2]);
+corrige_angulo(datos[1]);
 
 //recortando el area de interes, cuadrado con lado mitad del tamaño de la imagen
 
-run("Specify...", "width="+datos[3]/2+" height="+datos[3]/2+" x="+datos[3]/2+" y="+datos[3]/2+" constrain centered");
+run("Specify...", "width="+datos[2]/2+" height="+datos[2]/2+" x="+datos[2]/2+" y="+datos[2]/2+" constrain centered");
 run("Crop");
 run("Median...", "radius=2"); //elimnado ruido aleatorio
 saveAs("Tiff", getDirectory("temp")+"tmp_cropped.tif");	// guarda la imagen para volver a ella más tarde
@@ -242,7 +246,7 @@ run("Enhance Contrast...", "saturated=0.5");// aumenta el contraste
 //run("Find Edges");
 
 // Almacenando los datos de la imagen en un array
-n = datos[3]/2;
+n = datos[2]/2;
  // mitad del tanaño de la imagen 595 pixeles
 ValoresImg = newArray(n*n);
  // Total de pixeles de la imagen 595*595
@@ -253,9 +257,6 @@ max_c_una_franja = newArray;
 prom_c_franjas = newArray;
 dif = newArray();
 prod = newArray(n);
-max_c_centroide = newArray();
-skewness_valo_1 = newArray();
-kurtosis_valo_1 = newArray();
 
 
 
@@ -294,7 +295,7 @@ for (i=0;i<n;i++) {
 	     //multiplicar cada maximo en cada fila para encontar error
 	     //mejor resultado con este max para algunos
 	     //prod[i] *= max_c_gauss[t+i*Nume_Lineas_H];	      
-	     prod[i] *= maxLocs_Filas[t] ;
+	     prod[i] *= maxLocs_Filas[t];
 	     
 	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
 	     
@@ -305,8 +306,7 @@ for (i=0;i<n;i++) {
 		
 Overlay.show;	
 		 
-};
-	
+};	
 
 //convirtiendo de pixeles a cm
 //reduzco la matriz de 595 a 60 valores
@@ -369,3 +369,4 @@ for (i = 0; i < lengthOf(dif_56); i++) {
 
 ploting();
 print("Listo");
+exit("Listo");
