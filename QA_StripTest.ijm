@@ -24,6 +24,9 @@ function obtener_datos_DICOM() {
 
 function Datos_de_la_Imag(Acelerador,fecha,RTImageLabel) {
 // Mostrar la informacion de la prueba de la cual proviene la imagen
+//existen dos variantes:
+//* Test 1.1 Picket Fence RapidArc
+//* Test 1.2 Picket Fence Error
 
 if (RTImageLabel==" MV_187_1a ")
 {
@@ -43,7 +46,7 @@ print(" - - - - - - - - - - - - - - - - - - - - - - ");
 };
 
 function corrige_angulo(x) { 
-//Rotando la imagen para corregir angulo de defasaje
+//Rotando la imagen para corregir ángulo de inclinación
 	if (x==" MV_187_1a "){
 		//Imagen sin errores intencionados (determinado empíricamente)
 		run("Rotate... ", "angle=-"+0.1+" grid=1 interpolation=Bilinear"); 	
@@ -83,56 +86,6 @@ for (i = 0; i < lengthOf(vecindad); i++) {
     };
     
  
-function Centro_centroide(vecindad) { 
-		//Función para determinar el cetro gausiano
-		//recibe como entrada la vecindad de valores
-		
-		den=0;
-		num=0;
-		X = newArray(lengthOf(vecindad));
-		for (i = 0; i < lengthOf(vecindad); i++) {
-			    	X[i]=i;
-			    	};
-	    for (i = 0; i < lengthOf(vecindad); i++) {
-	    	num+=X[i]*vecindad[i];
-	    };
-	    for (i = 0; i < lengthOf(vecindad); i++) {
-	    	den+=vecindad[i];
-	    };
-	    
-	    x_centro = num/den;
-
-		return x_centro   
- };
- 
- 
-function skewness(datos,mean,StDv) { 
-		
-		n = lengthOf(datos);
-		skewnees_n=0;
-		for (i = 0; i < n; i++) {
-			skewnees_n+=Math.pow((datos[i]-mean), 3);
-		} 
-		for (i = 0; i < n; i++) {
-			skewnees_d+=Math.pow((datos[i]-mean), 2);
-		} 
-		sk =   skewnees_n * (1/n) * (1/(Math.pow(Math.sqrt((1/n)*skewnees_d),3)));
-	   return sk
-};
-
-
-function kurtosis(datos,mean,StDv) { 
-		n = lengthOf(datos);
-		for (i = 0; i < n; i++) {
-			kurtosis_n+=Math.pow((datos[i]-mean), 4);
-		};    
-		for (i = 0; i < n; i++) {
-			kurtosis_d+=Math.pow((datos[i]-mean), 2);
-		};
-     	 kt= ((1/n)*kurtosis_n)/(Math.pow((1/n)*kurtosis_d, 2));  
-     	 return kt;
-};
-
 function cover595to56(valores595) {   
 // para convertir de lo 595 pixeles a 56 valores correspondietes a la cantidad de leafs
     valores56 = newArray(56);
@@ -216,69 +169,27 @@ function dibuja_centros_y_gap(valores595, prod_56) {
 	};
 };
 //*********************funciones que muestran la informacion en graficas**********************
-function ploting() {    //ARREGLAR PARA FACILITAR INTERPRETACION DEL USUARIO
+function ploting() {    
 	//se crea una variable para graficar el número de las láminas correctamente
 	L = Array.getSequence(57);
 	for (i = 0; i < 2; i++) {
 		L = Array.deleteIndex(L, 0);
 	};
-	
-	//Graficar el producto
-	Plot.create("Producto", "X-axis Label", "Y-axis Label")
-	Plot.add("line",prod);
-	Plot.show()
-	
-	
-	//grafica diferencia para linea igual a t	
-	Plot.create("Diferencia", "X-axis Label", "Y-axis Label");
-	Plot.add("line",prom_dif);
-	Plot.show()
 
-	//grafica de los proemdios por cada lamina 60 valores
-	Plot.create("prod 56", "X-axis Label", "Y-axis Label");
-	Plot.add("line",L,prod_56);
-	Plot.add("separated bar",L,prod_56);
-	Plot.show()
-	
-	//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
-	Plot.create("Dif 56", "lamina", "diefencia en pixel");
-	Plot.add("line",L,dif_56);
-	Plot.add("separated bar",L,dif_56);
-	Plot.show()
-	
-	
-	//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
-	Plot.create("Dif 56 mm", "lamina", "diferencia en mm");
+	//Gráfica de las diferencias entre el centro de la gaussisna
+	//y el max de intensidad por cada lámina 56 valores
+	Plot.create("Error de posicionamiento de las 56 láminas", "N. de lámina", "Error [mm]");
 	Plot.add("separated bar",L,dif_56_mm);
 	Plot.show()
 	
-    //Graficar el skewness
-	Plot.create("Skewness", "X-axis Label", "Y-axis Label");
-	Plot.add("line", skewness_valo_1);
-	Plot.show()
-	
-	//Graficar el kurtosis
-	Plot.create("Kurtosis", "X-axis Label", "Y-axis Label");
-	Plot.add("line", kurtosis_valo_1);
-	Plot.show()
-	
-	//Graficar el error por correspondencia con producto
-	Plot.create("Error promedio ", "X-axis Label", "Y-axis Label");
-	Plot.add("line",L, error_prod);
-	Plot.show()
-
 };
 
-
-
 //******************************************************************************************************
-
-//main()
 close("*")
 print("\\Clear");
 print("Prueba 1.0.0 QA_StripTest");
 print("");
-//run("Close");
+
 
 //seleccion de la carpeta de trabajo
 title = "Abrir";
@@ -290,7 +201,8 @@ l=list.length
 
 
 //selecciona la primera imagen de la carpeta
-path=dir+list[0];open(path); //guarda los nombres de todos los elementos de la carpeta
+path=dir+list[0];open(path);
+ //guarda los nombres de todos los elementos de la carpeta
 name = File.getName(path); //obtiene el valor del nombre de la imagen
 
 datos = newArray(4);
@@ -320,7 +232,7 @@ if (prom > mean ) {
 
 corrige_angulo(datos[2]);
 
-//recoertando el area de interes, cuadrado con lado mitad del tamaño de la imagen
+//recortando el area de interes, cuadrado con lado mitad del tamaño de la imagen
 
 run("Specify...", "width="+datos[3]/2+" height="+datos[3]/2+" x="+datos[3]/2+" y="+datos[3]/2+" constrain centered");
 run("Crop");
@@ -330,8 +242,10 @@ run("Enhance Contrast...", "saturated=0.5");// aumenta el contraste
 //run("Find Edges");
 
 // Almacenando los datos de la imagen en un array
-n = datos[3]/2; // mitad del tanaño de la imagen 595 pixeles
-ValoresImg = newArray(n*n); // Total de pixeles de la imagen 595*595
+n = datos[3]/2;
+ // mitad del tanaño de la imagen 595 pixeles
+ValoresImg = newArray(n*n);
+ // Total de pixeles de la imagen 595*595
 ValoresImg_Filas = newArray(n);
 max_c = newArray;
 max_c_gauss = newArray;
@@ -348,11 +262,14 @@ kurtosis_valo_1 = newArray();
 for (i=0;i<n;i++) {
 	for (j=0;j<n;j++){
 		ValoresImg[(n*i)+j]= getPixel(j,i);	// se almacena todos los valores de imagem n*n	
-		ValoresImg_Filas[j]= getPixel(j,i);	// se almacenan los valores de la fila en curso (numero de fila i)
+		ValoresImg_Filas[j]= getPixel(j,i);	
+// se almacenan los valores de la fila en curso (numero de fila i)
 		};
 	
-		maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);//encuentra los valores maximos de la fila i
-		maxLocs_Filas=Array.sort(maxLocs_Filas);//los ordeno de menor a mayor o izq a derecha		
+		maxLocs_Filas= Array.findMaxima(ValoresImg_Filas, 0.01);
+//encuentra los valores maximos de la fila i
+		maxLocs_Filas=Array.sort(maxLocs_Filas);
+//los ordeno de menor a mayor o izq a derecha		
 		
 	if (i==0) {
 		Nume_Lineas_H = lengthOf(maxLocs_Filas); //Número de máximos en la primera fila, para determiar cuantos arreglos de maxi 
@@ -373,7 +290,7 @@ for (i=0;i<n;i++) {
 	     Array.getStatistics(vecindad, min, max, mean, stdDev);
 	     // almaceno los centros de las gausianas para cada franja
 	     max_c_gauss[t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_Gaussiana(vecindad); 	
-	     max_c_centroide [t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_centroide(vecindad);   
+   
 	     //multiplicar cada maximo en cada fila para encontar error
 	     //mejor resultado con este max para algunos
 	     //prod[i] *= max_c_gauss[t+i*Nume_Lineas_H];	      
@@ -382,17 +299,14 @@ for (i=0;i<n;i++) {
 	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
 	     
 	     //c = maxLocs_Filas[t] - 16 + Centro_Gaussiana(vecindad); //ajustando para adaptar a la X de la franja que correponde		     		
-         if (t == 2) {	
-
-	         skewness_valo_1 [i]  = skewness(vecindad,mean,stdDev) ;
-	         kurtosis_valo_1 [i] = kurtosis(vecindad,mean,stdDev);	
-	     		     	     
-	     }; 
+ 
          };	
 	
-		Overlay.show;	
+		
+Overlay.show;	
 		 
-};	
+};
+	
 
 //convirtiendo de pixeles a cm
 //reduzco la matriz de 595 a 60 valores
@@ -453,34 +367,5 @@ for (i = 0; i < lengthOf(dif_56); i++) {
 	dif_56_mm[i]= dif_56[i]*0.336;
 };
 
-
-//ploting();
-
-	L = Array.getSequence(57);
-	for (i = 0; i < 2; i++) {
-		L = Array.deleteIndex(L, 0);
-	};
-
-	
-	//grafica de las diferencias entre el cetro de la gauss y el max de intensidad por cada lamina 60 valores
-	Plot.create("Dif 56 mm", "lamina", "diferencia en mm");
-
-	Plot.add("separated bar",L,dif_56_mm);
-	Plot.show()
-	
-
-//grafica de los proemdios por cada lamina 60 valores
-Plot.create("prod 56", "X-axis Label", "Y-axis Label");
-Plot.add("line",L,prod_56);
-Plot.add("separated bar",L,prod_56);
-Plot.show()
-
-
-
-print("return 0");
-	
-
-
-
-
-
+ploting();
+print("Listo");
