@@ -1,5 +1,3 @@
-//AREA DE FUNCIONES
-
 function obtener_datos_DICOM() { 
 //obtiene datos de la imagen DICOM
     datos = newArray(3);
@@ -44,8 +42,7 @@ else {
       exit("ELEGIR UNA IMAGEN PROVENIENTE DE LAS PRUEBAS: Test 1.1 Picket Fence RapidArc o Test 1.2 Picket Fence Error"); 
      };
 };
-print(""); print("Acelerador: "+Acelerador);print("Fecha del estudio: "+fecha[5]+"/"+fecha[4]+"/"+fecha[3]);print("");
-print(" - - - - - - - - - - - - - - - - - - - - - - ");
+print("Acelerador: "+Acelerador);print("Fecha del estudio analizado: "+fecha[5]+"/"+fecha[4]+"/"+fecha[3]);
 
 };
 
@@ -95,7 +92,7 @@ function cover595to56(valores595) {
     valores56 = newArray(56);
 	ini = 4;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
-	// los vaslores de suma son para calibrar segun la correpondencia pixel-cm
+	// los valores de suma son para calibrar segun la correpondencia pixel-cm
 	for (lamina = 0; lamina < 56; lamina++) {
 		if (lamina < 12 ) {
 			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
@@ -122,22 +119,23 @@ function cover595to56(valores595) {
 		};
 
 	};
+	
 	return valores56;
 	
 };
 
-function dibuja_centros_y_gap(valores595, prod_56) { 
+function dibuja_centros_y_gap(valores595, dif_56_mm,tolerancia) { 
 //Dibuja los centro y los bordes de las piezas del colimador en cada disparo del colimador
     ini = 4;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
 	for (lamina = 0; lamina < 56; lamina++) {
 		if (lamina < 12 ) {
-			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			Dibuja_Punto("red",1,(mean),ini,(mean),ini+10);
 						
-			//resaltando el error pod_56 < 0.97
-			if (prod_56[lamina]<0.97) {
+			//resaltando el error dif_56_mm < tolerancia
+			if (dif_56_mm[lamina]>tolerancia) {
 				Dibuja_rectangulo("blue", 1, mean-5,ini-2.5, 10, 14);			
 			}
 			ini += 15;	
@@ -148,43 +146,55 @@ function dibuja_centros_y_gap(valores595, prod_56) {
 		};
 		
 		if (11 < lamina && lamina < 44){
-			vecindad_laminaPeq = Array.slice(valores595,ini,ini+4);
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+7);
 			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
 			Dibuja_Punto("red",1,(mean),ini,(mean),ini+4);
 						
-			//resaltando el error pod_56 < 0.97
-			if (prod_56[lamina]<0.97) {
+			//resaltando el error dif_56_mm > tolerancia
+			if (dif_56_mm[lamina]>tolerancia) {
 				Dibuja_rectangulo("blue", 1, mean-5,ini-1.25, 10, 7); 
 			}
 			ini +=7.5; 
 			};
 			
 		if (lamina > 43) {
-			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			Dibuja_Punto("red",1,(mean),ini,(mean),ini+10);
 			
-			//resaltando el error pod_56 < 0.97
-			if (prod_56[lamina]<0.97) {
+			//resaltando el error dif_56_mm > tolerancia
+			if (dif_56_mm[lamina]>tolerancia) {
 				Dibuja_rectangulo("blue", 1, mean-5,ini-2.5, 10, 14);
 				};
 			ini +=14.5; 
 		};
 	};
 };
-//*********************funciones que muestran la informacion en graficas**********************
-function ploting() {    
-	//se crea una variable para graficar el número de las láminas correctamente
-	L = Array.getSequence(57);
-	for (i = 0; i < 2; i++) {
-		L = Array.deleteIndex(L, 0);
-	};
+//*********************funciones que muestran la informacion en gráficas**********************
+function ploting(L,tolerancia) { 
 
-	//Gráfica de las diferencias entre el centro de la gaussisna
-	//y el max de intensidad por cada lámina 56 valores
-	Plot.create("Error de posicionamiento de las 56 láminas", "N. de lámina", "Error [mm]");
-	Plot.add("separated bar",L,dif_56_mm);
-	Plot.show()
+   //Gráfica de las diferencias entre el centro de la gaussisna
+   //y el max de intensidad por cada lámina 56 valores
+	
+   tol = newArray(lengthOf(L)+20); 
+   Array.fill(tol, tolerancia);
+   Array.getStatistics(dif_56_mm, min, max);
+   Plot.create("Error de posicionamiento de las 56 láminas", "N. de lámina", "Error [mm]");
+   Plot.setLimits(2, L[lengthOf(L)-1]+1, min, max+0.1)
+   Plot.setFontSize(18);
+   Plot.setLineWidth(2);
+   Plot.setColor("blue","#bbbbff");
+   Plot.add("separated bar",L,dif_56_mm);
+   Plot.setColor("black", "#000000");
+   indexCode = "code: setFont('sanserif',10*s,'bold anti');drawString(d2s(i+3, 0),x-4*s,y-2*s);";
+   Plot.add(indexCode,L,dif_56_mm);
+   Plot.setColor("red", "#ff0000");
+   a=newArray(1,2);
+   b=newArray(lengthOf(L)+3,lengthOf(L)+4);
+   L=Array.concat(a,L);
+   L=Array.concat(L,b);
+   Plot.add("line",L,tol);
+   Plot.show()
 	
 };
 
@@ -192,7 +202,6 @@ function ploting() {
 close("*")
 print("\\Clear");
 print("Prueba 1.0.0 QA_StripTest");
-print("");
 
 
 //seleccion de la carpeta de trabajo
@@ -206,7 +215,7 @@ l=list.length
 
 //selecciona la primera imagen de la carpeta
 path=dir+list[0];open(path);
- //guarda los nombres de todos los elementos de la carpeta
+//guarda los nombres de todos los elementos de la carpeta
 name = File.getName(path); //obtiene el valor del nombre de la imagen
 
 datos = newArray(6);
@@ -245,9 +254,15 @@ saveAs("Tiff", getDirectory("temp")+"tmp_cropped.tif");	// guarda la imagen para
 run("Enhance Contrast...", "saturated=0.5");// aumenta el contraste
 //run("Find Edges");
 
+//Tolerancia de error a detectar, por defecto 0.25mm
+Dialog.create("Seleccione la tolerancia [mm]");
+Dialog.addSlider("Width:", 0, 2, 0.25);
+Dialog.show();
+tolerancia = Dialog.getNumber();
+
 // Almacenando los datos de la imagen en un array
 n = datos[2]/2;
- // mitad del tanaño de la imagen 595 pixeles
+ // mitad del tamaño de la imagen 595 pixeles
 ValoresImg = newArray(n*n);
  // Total de pixeles de la imagen 595*595
 ValoresImg_Filas = newArray(n);
@@ -256,8 +271,6 @@ max_c_gauss = newArray;
 max_c_una_franja = newArray;
 prom_c_franjas = newArray;
 dif = newArray();
-prod = newArray(n);
-
 
 
 for (i=0;i<n;i++) {
@@ -276,8 +289,7 @@ for (i=0;i<n;i++) {
 		Nume_Lineas_H = lengthOf(maxLocs_Filas); //Número de máximos en la primera fila, para determiar cuantos arreglos de maxi 
 			                                     //tengo que crear	
 	     };
-	    // inicializacion en uno para la operacion despues 
-		prod[i] = 1;  
+	    
 		dif[i] = 1;
 		
 	     //Trabajado para una fila	     
@@ -291,16 +303,7 @@ for (i=0;i<n;i++) {
 	     Array.getStatistics(vecindad, min, max, mean, stdDev);
 	     // almaceno los centros de las gausianas para cada franja
 	     max_c_gauss[t+i*Nume_Lineas_H] = maxLocs_Filas[t]-15+Centro_Gaussiana(vecindad); 	
-   
-	     //multiplicar cada maximo en cada fila para encontar error
-	     //mejor resultado con este max para algunos
-	     //prod[i] *= max_c_gauss[t+i*Nume_Lineas_H];	      
-	     prod[i] *= maxLocs_Filas[t];
-	     
-	     // Diferencia entre el centro de la Gaussiana y el centro de intensidad
-	     
-	     //c = maxLocs_Filas[t] - 16 + Centro_Gaussiana(vecindad); //ajustando para adaptar a la X de la franja que correponde		     		
- 
+
          };	
 	
 		
@@ -310,14 +313,6 @@ Overlay.show;
 
 //convirtiendo de pixeles a cm
 //reduzco la matriz de 595 a 60 valores
-//normalizar la matriz prod
-Array.getStatistics(prod, min, max, mean, stdDev);
-l = lengthOf(prod);
-for (i = 0; i < l; i++) {
-	prod[i] = prod[i]/ max;
-};
-
-prod_56=cover595to56(prod);
 
 // buscando el centro y los limites reales de las franjas
 max_c_c= newArray();
@@ -325,11 +320,7 @@ max_c_c = Array.sort(Array.copy(max_c)); //hay que hacerlo asi para evitar la re
 max_c_gauss=Array.sort(max_c_gauss); 
 
 
-
 for (t = 0; t < Nume_Lineas_H; t++) {
-		//se dibija los centros segun la intesidad no por el ajuste gausiano
-	max_c_una_franja_int = Array.slice(max_c_gauss,t*595,(t+1)*595);
-	dibuja_centros_y_gap(max_c_una_franja_int,prod_56);
 	// se dibujan las franjas basados en ajuste
 	max_c_una_franja = Array.slice(max_c_gauss,t*595,(t+1)*595); //en cada ciclo se obtienen las x de los max de intensidad
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
@@ -367,6 +358,45 @@ for (i = 0; i < lengthOf(dif_56); i++) {
 	dif_56_mm[i]= dif_56[i]*0.336;
 };
 
-ploting();
-print("Listo");
-exit("Listo");
+//se crea una variable para graficar el número de las láminas correctamente
+L = Array.getSequence(59);
+for (i = 0; i < 3; i++) {
+	L = Array.deleteIndex(L, 0);
+};
+
+
+for (t = 0; t < Nume_Lineas_H; t++) {
+	//se dibija los centros según el promedio del ajuste gausiano para cada franja
+	max_c_una_franja_int = Array.slice(max_c_gauss,t*595,(t+1)*595);
+	dibuja_centros_y_gap(max_c_una_franja_int,dif_56_mm, tolerancia);	
+	Overlay.show;
+}
+
+ploting(L,tolerancia);
+
+//tabla
+Table.create("Medidas de desplazamientos (errores) por láminas") 
+Table.setColumn("Lámina", L) 
+Table.setColumn("Error[mm]",dif_56_mm) 
+
+
+//resultados
+print("");
+getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
+print("Fecha de la prueba: "+ dayOfMonth +"/"+ (month+1)+"/"+year);
+print("Hora de la prueba: "+ hour +":"+ minute+":"+second);
+print("");
+
+
+
+//Salvando los resultados
+val=getBoolean("Guardar las medidas?");
+if (val==1) {
+	dir2 = getDirectory("Selecciona carpeta para guardar los resultados");
+	selectWindow("Medidas de desplazamientos (errores) por láminas");  //select Log-window
+	saveAs("Text", dir2+"Picket Fence"+"_"+dayOfMonth +"-"+ (month+1)+"-"+year+".txt");
+	exit
+	}
+
+exit
+
