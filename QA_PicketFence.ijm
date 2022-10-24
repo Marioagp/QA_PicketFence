@@ -86,52 +86,52 @@ function dibuja_linea(color, x0, y0, x1, y1) {
 
 function dibuja_centros(valores595, dif_56_mm,tolerancia) { 
 	//Dibuja los centro y los bordes de las piezas del colimador en cada disparo del colimador
-    ini = 3;//round(n/198);
+	//Para dibujar lineas subpixeles hay que restar 0.5 de la posición desada
+    ini = 3;
 	//laminas de 1 cm las 12 primeras y las 12 ultimas
 	for (lamina = 0; lamina < 56; lamina++) {
 		if (lamina < 12 ) {
-			//vecindad_laminaGra = Array.slice(valores595,ini,ini+round(n/42.5));
-			//Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);
-			mean = valores595[ini+5];
-			dibuja_linea("red",(mean)-0.5,ini-0.5,(mean)-0.5,ini+10-0.5);//round(n/59.5)
-			dibuja_linea("magenta",0,ini-2.5,n,ini-2.5);//round(n/59.5)
+
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
+			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);
+			dibuja_linea("red",mean-0.5,ini-0.5,mean-0.5,ini+9.5);
+			dibuja_linea("magenta",0,ini-2.5,n,ini-2.5);
 						
 			//resaltando el error dif_56_mm < tolerancia
 			if (dif_56_mm[lamina]>tolerancia) {
-				dibuja_rectangulo("blue", mean-(tolerancia*3)-1-0.5,ini-1-0.5,(3*tolerancia*3)+2-0.5, 14-0.5);		
-			}
-			ini += 15;//round(n/40);		
-			//correccion del paso de las laminas grandes a las chicas
+				dibuja_rectangulo("blue", mean-(tolerancia*3)-1.5,ini-1.5,(3*tolerancia*3)+1.5, 13.5);		
+			};
+			ini += 15;		
+			//corrección del paso de las laminas grandes a las pequeñas
 			if (lamina==11) {
-				ini = ini - 2;//n/595;
-				
-			}						
+				ini = ini - 2;				
+			};						
 		};
 		
 		if (11 < lamina && lamina < 44){
-			//vecindad_laminaPeq = Array.slice(valores595,ini,ini+round(n/85));
-			//Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);
-			mean = valores595[ini+2];		
-			dibuja_linea("red",(mean)-0.5,ini-0.5,(mean)-0.5,ini+4-0.5);//round(n/148.75)
-			dibuja_linea("magenta",0,ini-2.5,n,ini-2.5);//round(n/59.5)
+
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+7);
+			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
+			dibuja_linea("red",(mean)-0.5,ini-0.5,(mean)-0.5,ini+3.5);
+			dibuja_linea("magenta",0,ini-2.5,n,ini-2.5);
 						
 			//resaltando el error dif_56_mm > tolerancia
 			if (dif_56_mm[lamina]>tolerancia) {
-				dibuja_rectangulo("blue", mean-(tolerancia*3)-1-0.5,ini-1-0.5,(3*tolerancia*3)+2-0.5, 7-0.5); 
+				dibuja_rectangulo("blue", mean-(tolerancia*3)-1.5,ini-1.5,(3*tolerancia*3)+1.5, 6.5); 
 			}
-			ini += 7.5;//(n/79.5); 
+			ini += 7.5;
 		};
 		
 	  if (lamina > 43) {
-		 //vecindad_laminaGra = Array.slice(valores595,ini,ini+round(n/42.5));
-		 //Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);	
-		 mean = valores595[ini+5];
-		 dibuja_linea("red",(mean)-0.5,ini-0.5,(mean)-0.5,ini+10-0.5);//round(n/59.5)
-		 dibuja_linea("magenta",0,ini-2.5,n,ini-2.5);//round(n/59.5)
+
+		 vecindad_laminaGra = Array.slice(valores595,ini,ini+14);
+		 Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);
+		 dibuja_linea("red",(mean)-0.5,ini-0.5,(mean)-0.5,ini+9.5);
+		 dibuja_linea("magenta",0,ini-2.5,n,ini-2.5);
 		
 		 //resaltando el error dif_56_mm > tolerancia
 		 if (dif_56_mm[lamina]>tolerancia) {
-		 	dibuja_rectangulo("blue", mean-(tolerancia*3)-1-0.5,ini-1-0.5,(3*tolerancia*3)+2-0.5 , 14-0.5);	
+		 	dibuja_rectangulo("blue", mean-(tolerancia*3)-1.5,ini-1.5,(3*tolerancia*3)+1.5 , 13.5);	
 		};
 		
 		ini += 15;
@@ -142,7 +142,7 @@ function dibuja_centros(valores595, dif_56_mm,tolerancia) {
 //*********************funciones de calculo de la información *******************************
 
 function centro_gausiana(vecindad) { 
-	//Función para determinar el centro gausiano
+	//función para determinar el centro gausiano
 	//recibe como entrada la vecindad de valores 
 	X = newArray(lengthOf(vecindad));
 	
@@ -163,34 +163,34 @@ function convierte_56(valores595,n) {
 	//las imágenes de las pruebas de muestra
 	 
     valores56 = newArray(56);
-	ini = round(n/198);
+	ini = 3;
 	
 	//láminas de 1 cm las 12 primeras y las 12 ultimas
 	//los valores de suma son para calibrar segun la correpondencia pixel-cm
 	for (lamina = 0; lamina < 56; lamina++) {
 		if (lamina < 12 ) {
-			vecindad_laminaGra = Array.slice(valores595,ini,ini+round(n/59.5));
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			valores56[lamina]=mean;
-			ini += round(n/40);
+			ini += 15;
 				
 		    if (lamina==11) {
-			       ini = ini - round(n/595);
+			       ini = ini - 2;
 		}						
 		};
 		
 		if (11 < lamina && lamina < 44){
-			vecindad_laminaPeq = Array.slice(valores595,ini,ini+round(n/148.75));
+			vecindad_laminaPeq = Array.slice(valores595,ini,ini+4);
 			Array.getStatistics(vecindad_laminaPeq, min, max, mean, stdDev);		
 			valores56[lamina]=mean;
-			ini +=(n/79.5); 
+			ini +=7.5; 
 			};
 			
 		if (lamina > 43) {
-			vecindad_laminaGra = Array.slice(valores595,ini,ini+round(n/59.5));
+			vecindad_laminaGra = Array.slice(valores595,ini,ini+10);
 			Array.getStatistics(vecindad_laminaGra, min, max, mean, stdDev);		
 			valores56[lamina]=mean;
-			ini +=round(n/41.03); 
+			ini += 14.5; 
 		};
 
 	};
@@ -206,8 +206,10 @@ function ploting(L,tolerancia) {
    //Gráfica de las diferencias entre el centro de la gaussisna
    //y el max de intensidad por cada una de las 56 láminas
 	
-   tol = newArray(lengthOf(L)+20); 
+   tol = newArray(lengthOf(L)+20);    
+   tol2 = newArray(lengthOf(L)+20); 
    Array.fill(tol, tolerancia);
+   Array.fill(tol2, tolerancia+0.25);
    Array.getStatistics(dif_56_mm, min, max);
    Plot.create("Error de posicionamiento de las 56 laminas", "N. de lamina", "Error [mm]");
    Plot.setLimits(2, L[lengthOf(L)-1]+1, min, max+0.1)
@@ -218,12 +220,14 @@ function ploting(L,tolerancia) {
    Plot.setColor("black", "#000000");
    indexCode = "code: setFont('sanserif',10*s,'bold anti');drawString(d2s(i+3, 0),x-4*s,y-2*s);";
    Plot.add(indexCode,L,dif_56_mm);
-   Plot.setColor("red", "#ff0000");
+   Plot.setColor("magenta");
    a=newArray(1,2);
    b=newArray(lengthOf(L)+3,lengthOf(L)+4);
    L=Array.concat(a,L);
    L=Array.concat(L,b);
    Plot.add("line",L,tol);
+   Plot.setColor("red", "#ff0000");
+   Plot.add("line",L,tol2);
    Plot.show()
 	
 };
@@ -238,7 +242,7 @@ print("Prueba 1.0.0 QA_Picket Fence");
 
 //seleccion de la carpeta de trabajo
 title = "Abrir";
-msg = "Seleccionar la carpeta donde se encuentre la imagen\n de la prueba \"Strip Test\" Prueba de bandas";
+msg = "Seleccionar la carpeta donde se encuentre la imagen\n de la prueba \"Picket Fence\" Prueba de bandas";
 waitForUser(title, msg);
 dir = getDirectory("Selecciona Carpeta");
 list=getFileList(dir);
@@ -368,14 +372,14 @@ for (t = 0; t < Nume_Lineas_H; t++) {
 
 close();
 setBatchMode(false);
-corrige_angulo(datos[1]);
+
 for (t = 0; t < Nume_Lineas_H; t++) {
 	//Se dibujan las franjas basados en ajuste
 	max_c_una_franja = Array.slice(max_c_gauss_ordenado,t*n,(t+1)*n); //en cada ciclo se obtienen las x de los max de intensidad
 	Array.getStatistics(max_c_una_franja, min, max, mean, stdDev);
 	prom_c_franjas = (mean);
-	dibuja_linea("green",prom_c_franjas-round(tolerancia*3),0,prom_c_franjas-round(tolerancia*3),n); // porque 1 mm equivale a ~3 pixeles (hay q usar (n/297)) 
-	dibuja_linea("green",prom_c_franjas+round(tolerancia*3),0,prom_c_franjas+round(tolerancia*3),n); // para una correcta visualizacion (n/297)~2
+	dibuja_linea("green",prom_c_franjas-(tolerancia*3)-0.5,0,prom_c_franjas-(tolerancia*3)-0.5,n); // porque 1 mm equivale a ~3 pixeles  
+	dibuja_linea("green",prom_c_franjas+(tolerancia*3)-0.5,0,prom_c_franjas+(tolerancia*3)-0.5,n); // 
 	
 
 	for (i = 0; i < n; i++) {
